@@ -276,7 +276,7 @@ body.auth-required #auth .auth-panel{animation:auth-form-enter .28s ease both}
 @media(max-width:760px){
  .shell header{height:54px;padding:0 18px}.shell .breadcrumb{font-size:10px}.shell .breadcrumb>span{padding:0 7px}.shell .header-right{gap:8px}.shell .avatar{width:30px;height:30px;font-size:12px}.shell #cloud-status{font-size:10px;max-width:130px;overflow:hidden;text-overflow:ellipsis}
  .shell main{padding:22px 18px 30px}.shell footer{font-size:9px}
- #content h1{font-size:26px;margin:0 0 5px}#content .page-heading{flex-direction:column;align-items:stretch;gap:14px;margin-bottom:18px}#content .page-heading .subtitle{font-size:12px;line-height:1.5}#content .page-heading>.primary{width:100%;font-size:12px;min-height:42px}
+ #content h1{font-size:26px;margin:0 0 5px}#content .page-heading{flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:14px;margin-bottom:18px}#content .page-heading>div{flex:0 1 auto;width:100%}#content .page-heading .subtitle{font-size:12px;line-height:1.5}#content .page-heading>.primary{width:100%;font-size:12px;min-height:42px}
  #content[data-page]:not([data-page=home])>.page-heading .subtitle{display:none}
  #content .stats{grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 22px}#content .stat{padding:14px;min-height:106px}#content .stat-icon{display:grid;margin-bottom:9px}#content .stat-icon svg{width:18px;height:18px}#content .stat strong{font-size:23px}#content .stat-label{font-size:11px}#content .stat small{display:none}
  #content .card{padding:16px;border-radius:14px}#content .grid{gap:0}#content .card-header h2{font-size:16px}
@@ -306,3 +306,9 @@ body.auth-required #auth .auth-panel{animation:auth-form-enter .28s ease both}
 #pwa-install-help #pwa-install-close{background:#f0f0e8;color:#6d786e}
 #pwa-install-confirm[hidden]{display:none}
 @media(prefers-reduced-motion:no-preference){#pwa-install-help[open]{animation:workspace-enter .25s ease}}
+
+/* Dashboard summary cards are accessible navigation buttons. */
+#content button.stat{text-align:left;color:var(--ink);font:inherit;cursor:pointer;width:100%;min-width:0;transition:border-color .2s ease,box-shadow .2s ease}
+#content button.stat:hover{border-color:#a6b79d;box-shadow:0 4px 14px #303d3810}
+#content button.stat:focus-visible{outline:3px solid #8ca27e;outline-offset:3px}
+#content button.stat:active{background:#f0f4ea}
