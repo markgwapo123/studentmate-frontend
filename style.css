@@ -317,3 +317,18 @@ body.auth-required #auth .auth-panel{animation:auth-form-enter .28s ease both}
 #content .assignment-sort select{width:auto;max-width:180px;min-height:40px;padding:8px 12px;border-radius:9px;background:var(--paper);font-size:12px}
 #content .task-deadline{font-size:11px;line-height:1.5;margin-top:5px;color:#6e7d71}
 @media(max-width:760px){#content .task-deadline{font-size:10px}#content .assignment-sort label,#content .assignment-sort select{font-size:11px}}
+/* Five navigation items, with three configurable shortcuts. */
+#content .settings-tools{margin-bottom:18px}
+#content .settings-tool-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:16px}
+#content .settings-tool-list button{display:flex;align-items:center;gap:10px;min-width:0;min-height:54px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#f7f8f2;color:var(--ink);text-align:left}
+#content .settings-tool-list button>span{display:grid;place-items:center;color:var(--green)}
+#content .settings-tool-list svg{width:22px;height:22px}
+#content .settings-tool-list strong{font-size:12px;font-weight:600}
+#content .settings-tool-list i{font-size:22px;font-style:normal;margin-left:auto}
+#content .nav-fixed-preview{display:flex;gap:10px;margin-top:18px}
+#content .nav-fixed-preview>span{flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:10px;border-radius:10px;background:#edf2e7;font-size:11px;color:var(--green)}
+#content .nav-fixed-preview svg{width:17px;height:17px}
+#content .nav-fixed-preview small{margin-left:auto;font-size:9px;color:var(--muted)}
+#content .nav-customization select{border-radius:10px;background:var(--paper);min-height:44px}
+#nav-custom-error{color:#9b5148;font-size:12px;line-height:1.5}#nav-custom-error:empty{display:none}
+@media(max-width:760px){nav{width:100%;overflow:visible;justify-content:space-between;gap:2px}nav button{flex:1 1 0;min-width:0;max-width:none;font-size:9px;padding:7px 2px}.nav-label{width:100%;overflow:hidden;text-overflow:ellipsis}#content .settings-tool-list{grid-template-columns:1fr}.nav-icon svg{width:22px;height:22px}}
