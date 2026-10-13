@@ -182,3 +182,120 @@ body.auth-required #auth .auth-panel{animation:auth-form-enter .28s ease both}
   .auth-keyboard-open .auth-intro{margin-bottom:12px;min-height:0}
   .auth-keyboard-open .auth-illustration{display:none}
 }
+
+/* Student workspace redesign. Account forms keep their existing styles. */
+.shell{background:var(--bg)}
+.shell header{background:var(--paper);height:70px}
+.shell main{max-width:1200px;padding:32px 36px}
+#content .page-heading{margin-bottom:24px;gap:14px}
+#content h1{font-size:30px;letter-spacing:-1px;line-height:1.25}
+#content .page-heading .eyebrow{display:none}
+#content .page-heading .subtitle{font-size:13px;margin-top:5px}
+#content .primary{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:44px;border-radius:10px;white-space:nowrap}
+#content .secondary{min-height:40px;border-radius:10px}
+#content .card{border-radius:16px;padding:20px;border-color:#e7e6de;box-shadow:0 3px 12px #303d3804}
+#content .card-header{margin-bottom:16px}
+#content .card-header h2{font-size:17px}
+#content .stats{gap:12px;margin:20px 0 26px}
+#content .stat{padding:18px;border-radius:13px;display:flex;flex-direction:column;align-items:flex-start;box-shadow:0 3px 8px #303d3805}
+#content .stat-icon{position:static;display:grid;place-items:center;order:-1;background:transparent;padding:0;margin-bottom:10px;color:var(--green)}
+#content .stat-icon svg{width:21px;height:21px}
+#content .stat:nth-child(2) .stat-icon{color:#b8746c}
+#content .stat:nth-child(3) .stat-icon{color:#63869d}
+#content .stat-label{font-size:12px;order:1}
+#content .stat strong{font-size:26px;margin:0 0 3px;line-height:1.2}
+#content .stat small{order:2;margin-top:8px}
+#content .grid{gap:20px}
+#content .grid>div>.card{margin-bottom:20px}
+#content .task{gap:10px;padding:14px 0;align-items:flex-start}
+#content .task input[type=checkbox]{margin:10px 0 0;width:17px;height:17px}
+#content .task-subject-icon,#content .note-symbol{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex-shrink:0;color:var(--green)}
+#content .task-subject-icon svg,#content .note-symbol svg{width:20px;height:20px}
+#content .task-info{padding-top:2px}
+#content .task-open{display:block;border:0;background:none;color:var(--ink);padding:0;text-align:left;font-weight:650;font-size:13px;line-height:1.4;min-height:24px;white-space:normal}
+#content .task-open:hover{text-decoration:underline}
+#content .task .meta{margin-top:2px;font-size:11px}
+#content .task-detail{margin-top:8px;color:var(--muted);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#content .task-end{display:flex;align-items:center;gap:5px;flex-shrink:0;padding-top:4px}
+#content .badge{border-radius:6px;background:#edf2e8;color:var(--green);padding:5px 7px;font-size:10px;white-space:nowrap}
+#content .badge.overdue{background:#fae7e3;color:#a75851}
+#content .task-edit{border:0;background:none;color:#6e7d71;font-size:22px;min-width:30px;min-height:36px;padding:0}
+#content .filter{display:flex;background:#f0f0e8;padding:4px;border-radius:10px;gap:4px;margin-bottom:18px}
+#content .filter button{flex:1;border-radius:8px;font-size:12px;min-height:36px;border:0;background:none;color:var(--muted);padding:6px 8px}
+#content .filter button.selected{background:var(--green);color:white}
+#content .subject-grid{gap:14px}
+#content .subject-card{display:flex;align-items:flex-start;gap:14px;background:color-mix(in srgb,var(--subject-color) 40%,var(--paper));padding:20px;border:1px solid color-mix(in srgb,var(--subject-color) 65%,white);border-radius:15px}
+#content .subject-dot{width:44px;height:44px;min-width:44px;border-radius:12px;margin:0;display:grid;place-items:center;color:var(--green)}
+#content .subject-dot svg{width:24px;height:24px}
+#content .subject-copy{min-width:0;flex:1}
+#content .subject-card h2{font-size:16px;margin:0 0 5px;overflow-wrap:anywhere}
+#content .subject-card p{font-size:12px;line-height:1.5;margin:0;color:#7d867d}
+#content .card-actions{gap:10px;flex-wrap:wrap;margin-top:14px}
+#content .notes-toolbar{margin-bottom:18px}
+#content .note-search{display:flex;align-items:center;gap:10px;max-width:420px;margin:0;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:0 12px}
+#content .note-search svg{width:20px;height:20px;flex-shrink:0}
+#content .note-search input{border:0;background:transparent;padding:12px 0;min-height:44px}
+#content .notes-grid{gap:16px}
+#content .note{background:var(--paper);border:1px solid var(--line);border-radius:15px;padding:18px}
+#content .note[hidden]{display:none}
+#content .note-heading{display:flex;gap:12px;align-items:center}
+#content .note-heading h2{font-size:15px;overflow-wrap:anywhere}
+#content .note p{font-size:13px;line-height:1.65;color:#747f75;white-space:pre-wrap;overflow-wrap:anywhere;max-height:190px;overflow-y:auto;scrollbar-width:thin}
+#content .note>small{display:none}
+#content .calendar-toolbar .eyebrow{display:none}
+#content .calendar-agenda-item{border:1px solid var(--line);border-radius:12px;margin:10px 0;padding:14px;position:relative;background:var(--paper)}
+#content .calendar-agenda-item:before{content:'';width:4px;position:absolute;left:0;top:12px;bottom:12px;background:#b1c8ac;border-radius:4px}
+#content .calendar-agenda-item:nth-of-type(even):before{background:#e4b6ad}
+#content .focus-layout{max-width:550px;margin:auto}
+#content .timer{position:relative;overflow:hidden;padding:24px}
+#content .timer-ring{position:relative;z-index:1;width:240px;height:240px;border:6px solid #b8c8b9;border-top-color:var(--green);border-right-color:var(--green);border-radius:50%;display:flex;flex-direction:column;justify-content:center;align-items:center;margin:34px auto 26px;background:#fffefaed}
+#content .timer-display{font-size:52px;line-height:1.2;margin:12px 0 6px;font-weight:750;letter-spacing:-2px}
+#content .timer-leaf svg{width:23px;height:23px;color:var(--green)}
+#content .ring-label{font-size:12px;color:var(--muted)}
+#content .timer-caption{position:relative;z-index:1;font-size:12px;margin-bottom:20px}
+#content .timer-actions{position:relative;z-index:1;display:flex;gap:10px}
+#content .timer-actions .primary{flex:1}
+#content .focus-garden{position:absolute;top:250px;left:8px;right:8px;height:100px;opacity:.5;pointer-events:none}
+#content .focus-garden i{position:absolute;bottom:0;width:30px;height:85px;background:#a8bfa3;border-radius:100% 0 100% 0;transform:rotate(-30deg);left:12px}
+#content .focus-garden i:nth-child(2){left:40px;height:65px;transform:rotate(22deg);background:#d0ddc6}
+#content .focus-garden i:nth-child(3){left:auto;right:12px;transform:rotate(30deg)}
+#content .focus-garden i:nth-child(4){left:auto;right:40px;height:65px;transform:rotate(-22deg);background:#d0ddc6}
+#content[data-page=settings]{display:flex;flex-direction:column}
+#content[data-page=settings]>.page-heading{order:-3}
+#content .settings-profile{order:-2;display:flex;align-items:center;gap:14px;padding:20px;border-radius:15px;border:1px solid var(--line);background:var(--paper);margin-bottom:18px}
+#content .profile-initial{display:grid;place-items:center;flex-shrink:0;width:52px;height:52px;border-radius:50%;background:#d9e8d6;color:var(--green);font-weight:700;font-size:18px}
+#content .settings-profile p{font-size:12px;color:var(--muted);margin:6px 0 0}
+#content .settings-profile>.text-button{margin-left:auto;font-size:25px;min-width:40px;min-height:40px}
+#content .account-card{order:-1;margin-bottom:18px}
+#content .account-card h2{font-size:15px;overflow-wrap:anywhere}
+#content .account-signout{background:#fbe9e4;border:1px solid #f2d7d0;border-radius:10px;color:#9b5148;min-height:44px}
+#content .settings-grid{gap:18px}
+#content .settings-grid h2{font-size:16px}
+#content .settings-grid input{border-radius:10px;background:white}
+#content .admin-stat,#content .admin-users{border-radius:16px;box-shadow:0 3px 12px #303d3805}
+@media(max-width:760px){
+ .shell header{height:54px;padding:0 18px}.shell .breadcrumb{font-size:10px}.shell .breadcrumb>span{padding:0 7px}.shell .header-right{gap:8px}.shell .avatar{width:30px;height:30px;font-size:12px}.shell #cloud-status{font-size:10px;max-width:130px;overflow:hidden;text-overflow:ellipsis}
+ .shell main{padding:22px 18px 30px}.shell footer{font-size:9px}
+ #content h1{font-size:26px;margin:0 0 5px}#content .page-heading{flex-direction:column;align-items:stretch;gap:14px;margin-bottom:18px}#content .page-heading .subtitle{font-size:12px;line-height:1.5}#content .page-heading>.primary{width:100%;font-size:12px;min-height:42px}
+ #content[data-page]:not([data-page=home])>.page-heading .subtitle{display:none}
+ #content .stats{grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 22px}#content .stat{padding:14px;min-height:106px}#content .stat-icon{display:grid;margin-bottom:9px}#content .stat-icon svg{width:18px;height:18px}#content .stat strong{font-size:23px}#content .stat-label{font-size:11px}#content .stat small{display:none}
+ #content .card{padding:16px;border-radius:14px}#content .grid{gap:0}#content .card-header h2{font-size:16px}
+ #content .task{padding:12px 0;gap:8px}#content .task-subject-icon{width:30px;height:30px;border-radius:9px}#content .task-subject-icon svg{width:17px;height:17px}#content .task-open{font-size:12px}#content .task .meta{font-size:10px}#content .task-end{gap:0}#content .badge{font-size:9px;padding:5px}#content .task-edit{min-width:25px}#content .task-detail{font-size:10px;max-width:160px}
+ #content .filter{gap:2px}#content .filter button{font-size:10px;padding:5px;min-height:34px}
+ #content .subject-grid,#content .notes-grid{grid-template-columns:1fr}#content .subject-card{padding:17px;gap:12px}#content .subject-card h2{font-size:14px}#content .subject-card .meta{font-size:11px}#content .subject-card .card-actions{margin-top:10px}
+ #content .notes-toolbar{margin-bottom:14px}#content .note{padding:15px}#content .note p{font-size:12px}#content .note-heading h2{font-size:14px}
+ #content .calendar-card{padding:14px}#content .calendar-toolbar h2{font-size:16px;margin:0}#content .calendar-toolbar{margin-bottom:14px}#content .calendar-weekdays{font-size:9px;border:0}#content .calendar-dates{border:0;gap:3px;margin-top:0}#content .calendar-day{min-height:42px;align-items:center;justify-content:center;background:transparent;border:0;border-radius:9px;padding:3px;gap:2px}#content .calendar-day.selected{background:var(--green);color:white;box-shadow:none}#content .calendar-day.is-today .calendar-day-number{background:#e6eddf;color:var(--green)}#content .calendar-day.selected .calendar-day-number{background:none;color:white}#content .calendar-count{font-size:0;width:4px;height:4px;border-radius:50%;background:#8dab8b}#content .calendar-day.selected .calendar-count{background:white}#content .calendar-events{display:none}#content .calendar-note{font-size:10px}
+ #content .calendar-agenda .card-header{gap:10px}#content .calendar-agenda h2{font-size:14px}#content .calendar-agenda .card-header>.secondary{font-size:10px;padding:6px;min-height:34px}#content .calendar-agenda-item{padding:12px 10px;flex-wrap:wrap;gap:10px}#content .calendar-agenda-actions{margin-left:auto}#content .calendar-agenda-info strong{font-size:12px}#content .calendar-agenda-info>span{font-size:10px}
+ #content .timer-ring{width:220px;height:220px;margin:28px auto 24px}#content .timer-display{font-size:46px}#content .focus-garden{top:220px}#content .timer-actions .primary{min-height:46px}#content .timer-modes button{font-size:11px}
+ #content .settings-profile{padding:16px}#content .account-card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}#content .account-card-actions button{font-size:11px;white-space:normal;min-height:42px}#content .account-card-actions .account-signout{grid-column:1/-1}#content .account-card-heading{flex-wrap:wrap}#content .settings-grid{grid-template-columns:1fr}
+ aside{height:calc(74px + env(safe-area-inset-bottom,0px));padding:5px 6px calc(5px + env(safe-area-inset-bottom,0px));background:#fffefaee;backdrop-filter:blur(12px)}nav{gap:4px}nav button{flex:0 0 78px;min-width:78px;min-height:59px;font-size:10px;padding:7px 5px;border-radius:10px}.nav-icon{width:22px;height:22px}.nav-icon svg{width:21px;height:21px}.shell{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+}
+@media(min-width:761px){aside{height:100%;padding:30px 20px}#content .subject-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:no-preference){#content>.page-heading{animation:workspace-enter .22s ease}#content .task,#content .subject-card,#content .note{transition:box-shadow .2s ease,background .2s ease}#content .subject-card:hover,#content .note:hover{box-shadow:0 5px 16px #303d3809}@keyframes workspace-enter{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}}
+/* Install and update controls outside the account form. */
+#pwa-update[hidden]{display:none}
+#pwa-update{position:fixed;z-index:1500;left:50%;transform:translateX(-50%);bottom:24px;width:min(560px,calc(100% - 24px));display:flex;align-items:center;gap:12px;padding:16px;background:#fffefa;border:1px solid #d3dfce;border-radius:15px;box-shadow:0 8px 35px #303d3826;color:#303d38}
+#pwa-update strong{font-size:13px}#pwa-update p{font-size:12px;color:#87908a;margin:5px 0 0}#pwa-update>div{flex:1}#pwa-update button,#pwa-install-help button,#pwa-install-button{min-height:42px;border:0;border-radius:9px;background:#496b53;color:#fffefa;padding:9px 12px;font-size:12px;font-weight:600}#pwa-update #pwa-dismiss{background:transparent;color:#87908a;font-size:22px;padding:5px;min-width:32px}#pwa-update button:disabled{opacity:.6}
+#pwa-install-help{max-width:400px;padding:24px;border-radius:18px}#pwa-install-help h2{font-size:20px}#pwa-install-help p{font-size:14px;line-height:1.7;color:#788477;margin:16px 0 22px}
+#content #pwa-settings{margin-top:18px;display:flex;gap:16px;align-items:center}#pwa-settings p{font-size:12px;color:#87908a;line-height:1.6;margin:7px 0 0}#pwa-install-button{flex-shrink:0;max-width:160px}#pwa-install-button:disabled{background:#e9efe3;color:#496b53}
+@media(max-width:760px){#pwa-update{bottom:calc(86px + env(safe-area-inset-bottom,0px));padding:12px;gap:8px}#pwa-update strong{font-size:12px}#pwa-update p{font-size:10px}#pwa-update button{padding:8px;font-size:11px}#content #pwa-settings{align-items:stretch;flex-direction:column}#pwa-install-button{max-width:none}}
