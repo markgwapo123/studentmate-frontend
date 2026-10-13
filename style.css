@@ -164,3 +164,18 @@ body.auth-required #auth::-webkit-scrollbar{display:none;width:0;height:0}
 @media(max-width:360px){.auth-panel{padding:16px}.auth-tabs button{font-size:9px;gap:4px}.auth-intro{padding-right:0}.auth-illustration{display:none}}
 
 #splash{z-index:2000;transition:opacity .25s}#splash.hide{pointer-events:auto}
+
+/* Keep login and registration fields reachable above the mobile keyboard. */
+body.auth-required #auth{inset:auto 0 auto;top:var(--auth-viewport-top,0px);height:var(--auth-viewport-height,100dvh);scroll-padding:24px 0;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
+body.auth-required #auth .auth-screen{min-height:100%}
+#auth .auth-field{scroll-margin:24px 0}
+@media(max-width:600px){
+  #auth .auth-field input{font-size:16px}
+  body.auth-required.auth-keyboard-open #auth .auth-screen{padding:16px 16px 32px;gap:16px}
+  .auth-keyboard-open .auth-brand{font-size:20px}
+  .auth-keyboard-open .auth-brand-accent{display:none}
+  .auth-keyboard-open .auth-panel{padding:16px}
+  .auth-keyboard-open .auth-tabs{margin-bottom:16px}
+  .auth-keyboard-open .auth-intro{margin-bottom:12px;min-height:0}
+  .auth-keyboard-open .auth-illustration{display:none}
+}
