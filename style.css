@@ -117,7 +117,7 @@ body.admin-mode aside,body.admin-mode header,body.admin-mode footer{display:none
 @media(max-width:380px){.calendar-day{min-height:62px;padding:4px 2px}.calendar-count{font-size:7px}.calendar-controls .secondary{padding:6px}.calendar-controls .calendar-arrow{width:29px}}
 
 .nav-icon{display:grid;place-items:center;width:28px;height:28px;flex-shrink:0}.nav-icon svg{width:26px;height:26px}.nav-label{white-space:nowrap}nav button{min-height:48px}nav button.active .nav-icon{color:var(--green)}
-@media(max-width:760px){aside{height:86px;padding:6px 8px 4px}nav{justify-content:flex-start;gap:6px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#c3ccba transparent}nav button{flex:0 0 88px;min-height:67px;padding:8px 6px;gap:5px;font-size:11px}nav button.active{background:#e9efe3;font-weight:700}.nav-icon,.nav-icon svg{width:27px;height:27px}.shell{padding-bottom:86px}nav::-webkit-scrollbar{height:3px}nav::-webkit-scrollbar-thumb{background:#c3ccba;border-radius:5px}}
+@media(max-width:760px){aside{height:86px;padding:6px 8px 4px}nav{justify-content:flex-start;gap:6px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#c3ccba transparent}nav button{flex:0 0 88px;min-height:67px;padding:8px 6px;gap:5px;font-size:11px}nav button.active{background:#e9efe3;font-weight:700}.nav-icon{width:24px;height:24px;font-size:22px;line-height:24px}.nav-icon svg{width:22px;height:22px}.shell{padding-bottom:86px}nav::-webkit-scrollbar{height:3px}nav::-webkit-scrollbar-thumb{background:#c3ccba;border-radius:5px}}
 
 /* Centered account branding */
 body.auth-required #auth .auth-screen{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:38px;padding:48px 18px 32px}
