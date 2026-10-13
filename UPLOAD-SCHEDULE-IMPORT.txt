@@ -1,0 +1,22 @@
+StudentMate: PDF and Word schedule import
+
+INSTALL
+1. Extract this ZIP.
+2. Open the main page of markgwapo123/studentmate-frontend in GitHub. Choose Add file > Upload files.
+3. Upload the seven code files and the entire vendor folder to the repository root, preserving the folder structure. Do not upload this instructions file. Commit the change.
+4. Wait for the connected Vercel deployment, or redeploy the updated branch.
+5. Open StudentMate. If you see Update now, use it to refresh to the new release.
+
+USE
+Schedule > Import schedule > choose a PDF or .docx > edit the preview > check the review box > Import classes.
+Multiple weekdays create separate weekly entries. Classes appear in the existing calendar and dashboard, sorted by weekday and start time. Existing classes remain. Duplicate entries are skipped; overlaps are highlighted and require review.
+
+FORMATS
+Supports text PDFs and Word .docx files with common row tables, weekday-column timetables, separate start/end columns, or day-heading/text schedules. Recognizes full weekday names and campus shorthand such as MWF and TTh. Supports AM/PM, 24-hour times and time ranges. Unknown days, invalid times, and missing titles require edits before import.
+Different layouts can produce missing or misread entries. Compare every preview against the original file. Scanned/image-only PDFs and unusual layouts require manual entry or pasted text; OCR is not included. Older Word .doc files must first be saved as .docx. Password-protected PDFs must be unlocked first. Limits: 15 MB, 60 PDF pages, 500 preview entries.
+
+Files are parsed on the device; the original document is not uploaded. Confirmed schedule entries use the existing workspace save function, including cloud sync for signed-in accounts. Importing does not itself guarantee a successful cloud save: check the app cloud status. Reader assets are bundled locally and included in the app service-worker cache.
+
+VALIDATION
+Checked real sample PDF/Word extraction, varied headers, timetable layout, weekday shorthand, AM/PM conversions, scanned-PDF fallback, duplicate and overlap checks, incomplete-row blocking, append/sort behavior, storage-failure rollback, account-change guard, JavaScript syntax and local asset links.
+A real browser visual check and live deployment were not available.

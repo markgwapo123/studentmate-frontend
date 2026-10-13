@@ -1,0 +1,11 @@
+Bundled document readers
+
+PDF.js / pdfjs-dist 6.4.299, Mozilla contributors, Apache-2.0.
+Source: https://github.com/mozilla/pdf.js
+Distribution: https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-6.4.299.tgz
+
+Mammoth 1.13.0, Michael Williamson and contributors, BSD-2-Clause.
+Source: https://github.com/mwilliamson/mammoth.js
+Distribution: https://registry.npmjs.org/mammoth/-/mammoth-1.13.0.tgz
+
+Each reader retains its license. PDF character maps and standard fonts are packaged as base64 bytes in resources.json for convenient uploading; their original license notices are included in FONT-AND-CMAP-LICENSES.txt.
