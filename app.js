@@ -76,22 +76,371 @@ function validData(d){const str=x=>typeof x==='string';return d&&(d.navItems===u
 async function importData(input){try{const file=input.files[0];if(!file)return;if(file.size>10*1024*1024)throw Error();const x=JSON.parse(await file.text());if(x.format!=='studentmate'||x.version!==1||!validData(x.data))throw Error();if(!confirm('Replace your current workspace with this backup?'))return;state=x.data;save();resetTimer();toast('Backup restored')}catch{toast('Please choose a valid StudentMate backup')}finally{input.value=''}}
 window.addEventListener('hashchange',()=>{page=location.hash.slice(1)||'home';render()});page=location.hash.slice(1)||'home';render();setTimeout(()=>{$('splash').classList.add('hide')},2750);setTimeout(()=>{$('splash').remove();document.dispatchEvent(new Event('studentmate:splash-ready'))},3000);
 
-const TUTORIAL_KEY='studentmate.tutorial.v1';let tutorialStep=0;
+const TUTORIAL_KEY='studentmate.tutorial.v2';let tutorialStep=0;
 const tutorialSteps=[
-{icon:'✦',label:'WELCOME TO STUDENTMATE',title:'Your school day, made simpler.',description:'Let’s get to know your study companion. This short guide explains each feature before you enter your dashboard.',tips:['Use Next and Back to move at your own pace.','You can skip at any time and replay this guide in Settings.','Overview and Settings are fixed. Open Notes and Focus in Settings, or choose three shortcuts using Customize navigation.'],preview:'Start small. Stay organized. Make progress.'},
-{icon:'◫',label:'01 · OVERVIEW',title:'See your day at a glance.',description:'Your dashboard brings together pending work, today’s deadlines, subjects, and completed assignments.',tips:['Assignments left counts everything you have not completed. Due today shows assignments with today’s date.','Up next lists pending assignments by deadline. Select one or more checkboxes, then tap Add to Completed. Checking alone keeps assignments in the list.','Today’s classes comes from your weekly schedule. Use Add assignment for a quick new task.'],preview:'Assignments left  ·  Due today  ·  My subjects  ·  Completed'},
-{icon:'▤',label:'02 · SUBJECTS',title:'Build your semester first.',description:'Create a subject for each course so assignments and notes can be connected to what you’re learning.',tips:['Tap Add subject, enter its name, optional subject code and instructor, then pick a card color and Save.','Each subject card shows how many assignments are still pending. Edit subject changes its details.','Delete asks for confirmation. Linked assignments, notes, and classes are kept, with their subject removed.'],preview:'Example: Mathematics  ·  MATH 101  ·  Your instructor'},
-{icon:'☑',label:'03 · ASSIGNMENTS',title:'Keep track of what’s due.',description:'Record homework, projects, and other tasks, then check them off as you finish.',tips:['Tap Add assignment. Enter a title, choose a subject, optionally set a due date, select a priority, add details, and Save.','Use All, Pending, Due today, and Completed to filter your list. A missed deadline gets an Overdue label.','Select multiple assignments, then tap Add to Completed. In Completed, select tasks and tap Move to Pending to reopen them. Edit lets you revise details or delete the assignment.'],preview:'Example: Finish chapter exercises  ·  Due tomorrow  ·  High priority'},
-{icon:'▧',label:'04 · NOTES',title:'Give your ideas a home.',description:'Keep class notes, reminders, and useful thoughts in one place.',tips:['Tap New note, give it a title, choose an optional subject, and write your note.','Save creates a note card with its subject and latest saved date. Longer notes scroll inside the card.','Use Edit note to update its content or Delete to remove it after confirming.'],preview:'Example: Biology review  ·  Key terms and class reminders'},
-{icon:'▦',label:'05 · CALENDAR & SCHEDULE',title:'Know where to be, and when.',description:'See your weekly classes on a monthly calendar, choose a day, and add your schedule. Class times repeat each week.',tips:['Choose a date on the calendar. Add schedule opens the form with that weekday selected.','Enter a title, optionally choose a subject, and set the day, start and end times, and room. End time must be later than start time.','Use Import schedule to upload a PDF or Word (.docx), choose a gallery image, or take a photo. Read the photo and review titles, weekdays and times, then import. Classes repeat weekly and appear on the dashboard; duplicates are skipped.'],preview:'Example: Monday  ·  08:00–09:00  ·  Mathematics  ·  Room 201'},
-{icon:'◷',label:'06 · FOCUS TIMER',title:'Make time for one thing.',description:'Choose a Focus session for studying or a Break session for resting.',tips:['Tap Start session to begin. Pause stops the countdown and lets you resume with the remaining time.','Reset returns the selected mode to its full duration. Switching between Focus and Break also resets the countdown.','Finishing a Focus session adds to your session total. Change session lengths in Settings. Keep the app open; it does not send background notifications.'],preview:'25:00  ·  Focus on one task  ·  Take a break afterward'},
-{icon:'⚙',label:'07 · SETTINGS & BACKUPS',title:'Make this workspace yours.',description:'Adjust your profile, choose timer lengths, and keep a copy of your school records.',tips:['Change your name and Focus or Break minutes, then tap Save preferences. You can also open Settings using your profile icon.','Sign in or create an account in Settings for cloud saving. Sign in on another device to load your saved records. Without an account, records stay in this browser.','Export backup downloads a JSON copy. Import backup restores a valid StudentMate file after you confirm replacing current records. Replay tutorial starts this guide again.'],preview:'Your name  ·  Your rhythm  ·  Your backup'},
-{icon:'☁',label:'08 · ACCOUNT & CLOUD',title:'Take your workspace with you.',description:'Create an account or sign in using the header or Settings. Your account workspace is separate from your browser records.',tips:['Create an account with your name, email, and a password of at least 8 characters. Sign in again when you open a new browser session.','In Settings, Copy browser records transfers your existing work into your account after confirmation. It replaces the account workspace.','Watch for Saved to cloud. If another device has changed your records, export your unsaved copy before loading the cloud copy. Sign out returns to your browser workspace.'],preview:'Sign in  ·  Save to cloud  ·  Continue on another device'},
-{icon:'✧',label:'YOU’RE READY',title:'A little progress starts here.',description:'Begin with your subjects, add your first assignment, and build a week that works for you.',tips:['You can use the tools in any order.','This guide uses examples only; it does not add records to your workspace.','Find Replay tutorial in Settings whenever you need a refresher.'],preview:'Your workspace is ready for your first idea.'}
+  {
+    "id": "welcome",
+    "group": "Getting started",
+    "icon": "✦",
+    "label": "WELCOME TO STUDENTMATE",
+    "title": "Your school day, made simpler.",
+    "description": "Learn what each feature does and the buttons to use. This guide includes document uploads, gallery photos and live schedule capture.",
+    "tips": [
+      "Use Next and Back to read in order, or choose Guide topics to jump to a feature.",
+      "Skip tutorial opens your dashboard. You can return using Settings → Replay tutorial.",
+      "The guide uses examples only. Reading it does not create assignments, subjects or classes."
+    ],
+    "preview": "Choose a topic · Learn the steps · Start when you’re ready"
+  },
+  {
+    "id": "account",
+    "group": "Getting started",
+    "icon": "☁",
+    "label": "ACCOUNT & SIGN-IN",
+    "title": "Start with your account.",
+    "description": "Sign in to open your student workspace. Your account keeps your saved school records separate from other accounts.",
+    "path": "Sign-in screen → Create account or Sign in",
+    "tips": [
+      "Choose Create account, enter your name and email, then create an 8–128 character password with an uppercase letter, a number and a special character.",
+      "Already registered? Choose Sign in and enter your email and password. Wait for your workspace to load.",
+      "You may need to sign in again in a new browser session. Password recovery is not available yet, so keep your password safely.",
+      "The updated tutorial appears after sign-in when you have not finished or skipped this version of the guide."
+    ],
+    "preview": "Create account → Sign in → Your workspace"
+  },
+  {
+    "id": "navigation",
+    "group": "Getting started",
+    "icon": "☰",
+    "label": "NAVIGATION & SHORTCUTS",
+    "title": "Find every study tool.",
+    "description": "Overview and Settings stay on your navigation bar. You can choose three shortcuts for the other features.",
+    "path": "Settings → Study tools / Customize navigation",
+    "tips": [
+      "Tap Overview to return to your dashboard. Tap Settings or your profile icon to open preferences and account tools.",
+      "Under Study tools, open Assignments, Subjects, Schedule, Notes or Focus—even when that tool is missing from the navigation bar.",
+      "Under Customize navigation, choose three different features, then tap Save navigation. Reset default restores Assignments, Subjects and Schedule.",
+      "On a narrow screen, swipe the navigation bar horizontally if its buttons do not all fit."
+    ],
+    "preview": "Overview · Three shortcuts · Settings"
+  },
+  {
+    "id": "overview",
+    "group": "Your workspace",
+    "icon": "◫",
+    "label": "OVERVIEW",
+    "title": "See what needs your attention.",
+    "description": "Your dashboard brings assignments, subjects, focus and today’s classes together.",
+    "path": "Overview",
+    "tips": [
+      "Assignments left counts pending work; Due today counts assignments due today. Tap either card to open its assignment list.",
+      "My subjects opens your subjects; Completed opens finished assignments.",
+      "Up next lists pending assignments by deadline. Tap a title to edit, or Add assignment to create a task.",
+      "Your subjects → Manage opens Subjects. Today’s classes → View calendar opens Schedule. Start a focus session opens Focus."
+    ],
+    "preview": "Assignments left · Due today · My subjects · Completed"
+  },
+  {
+    "id": "subjects",
+    "group": "Your workspace",
+    "icon": "▤",
+    "label": "SUBJECTS",
+    "title": "Organize your semester.",
+    "description": "Create subjects so you can link assignments, notes and classes to the course they belong to.",
+    "path": "Subjects → Add subject",
+    "tips": [
+      "Enter the subject name. Add an optional subject code and instructor, choose a card color, then tap Save.",
+      "A subject card shows its pending assignment count. Edit subject lets you change its details.",
+      "Delete asks you to confirm. Linked assignments, notes and classes stay in your workspace, with their subject link removed.",
+      "Choose the subject in assignment, note and schedule forms. In an import preview, use Link to subject to connect a detected class."
+    ],
+    "preview": "Mathematics · MATH 101 · Your instructor"
+  },
+  {
+    "id": "assignments",
+    "group": "Your workspace",
+    "icon": "☑",
+    "label": "ASSIGNMENTS",
+    "title": "Record your work and deadlines.",
+    "description": "Keep homework, projects and other tasks in one list, with dates, times and priorities.",
+    "path": "Assignments → Add assignment",
+    "tips": [
+      "Enter a title, choose an optional subject, set priority and add details. You can leave the deadline empty.",
+      "Choose a due date before adding an optional due time. Tap Save when finished.",
+      "Use Pending, Due today and Completed to change the list. All shows work that is not completed; finished tasks are under Completed.",
+      "Sort by deadline switches between Earliest first and Latest first. Tap a title or edit arrow to change or delete an assignment. Overdue means its deadline has passed."
+    ],
+    "preview": "Finish exercises · Tomorrow, 4:00 PM · High priority"
+  },
+  {
+    "id": "completion",
+    "group": "Your workspace",
+    "icon": "✓",
+    "label": "COMPLETE MULTIPLE ASSIGNMENTS",
+    "title": "Select first, then choose an action.",
+    "description": "Checkboxes select assignments. Checking a box alone does not mark the assignment completed.",
+    "path": "Assignments or Overview → Assignment checkboxes",
+    "tips": [
+      "Select one or more assignments. The selection bar shows how many you selected.",
+      "Tap Add to Completed to finish selected pending assignments.",
+      "Open Completed, select finished assignments, then tap Move to Pending to reopen them.",
+      "Cancel selection clears the checkboxes without changing the assignments. For deletion, open an assignment and use Delete assignment."
+    ],
+    "preview": "Select tasks → Add to Completed → Completed list"
+  },
+  {
+    "id": "notes",
+    "group": "Your workspace",
+    "icon": "▧",
+    "label": "NOTES & SEARCH",
+    "title": "Keep lessons and ideas together.",
+    "description": "Write class notes, reminders or personal thoughts, and find them again with search.",
+    "path": "Notes, or Settings → Study tools → Notes",
+    "tips": [
+      "Tap New note, enter a title and note text, and choose an optional subject. Tap Save.",
+      "Search notes filters visible cards as you type. Clear the search to see all notes again.",
+      "Use Edit note to change a note. Its saved date updates when you save your edits.",
+      "Delete asks for confirmation. Longer note text can scroll within its card."
+    ],
+    "preview": "Biology review → Search notes → Edit note"
+  },
+  {
+    "id": "calendar",
+    "group": "Schedule & imports",
+    "icon": "▦",
+    "label": "CALENDAR & MANUAL SCHEDULE",
+    "title": "Build your weekly timetable.",
+    "description": "The monthly calendar displays classes that repeat on the same weekday every week.",
+    "path": "Schedule → Calendar / Add schedule",
+    "tips": [
+      "Choose a calendar date to see that weekday’s classes. Use the month arrows to browse and Today to return to the current date.",
+      "Tap Add schedule. Enter a title, optional subject, weekday, start/end times and room, then Save. End time must be later than start time.",
+      "The form starts with the selected weekday. Saved classes appear on each matching weekday and in Today’s classes on your dashboard.",
+      "Use Edit or Delete beside a class to change or remove it. For a schedule you already have in a file or photo, choose Import schedule."
+    ],
+    "preview": "Monday · 08:00–09:00 · Mathematics · Room 201"
+  },
+  {
+    "id": "import-start",
+    "group": "Schedule & imports",
+    "icon": "↥",
+    "label": "UPLOAD SCHEDULE: WHERE TO START",
+    "title": "Bring an existing schedule into the app.",
+    "description": "Import schedule reads a document or image, then gives you an editable preview before adding classes.",
+    "path": "Schedule → Import schedule",
+    "tips": [
+      "If Schedule is missing from your navigation bar, open Settings → Study tools → Schedule.",
+      "Tap Import schedule beside Add schedule at the top of the page.",
+      "Choose Import file for PDF/Word, Choose from gallery for an image, or Take photo for live camera capture.",
+      "Reading a file does not save it as classes yet. Review the detected entries, check the review box and tap Import classes."
+    ],
+    "preview": "Import file / Choose from gallery / Take photo → Preview → Import classes"
+  },
+  {
+    "id": "import-documents",
+    "group": "Schedule & imports",
+    "icon": "▤",
+    "label": "UPLOAD SCHEDULE: PDF & WORD",
+    "title": "Import a PDF or Word schedule.",
+    "description": "Use a text-based PDF or Word .docx file containing your class names, weekdays and times.",
+    "path": "Schedule → Import schedule → Import file",
+    "tips": [
+      "Choose your .pdf or .docx file, up to 15 MB. PDFs may have up to 60 pages. Save older Word .doc files as .docx first. Unlock password-protected PDFs before uploading.",
+      "Wait for reading to finish. The app supports common row tables, weekday timetables and text layouts, but unusual layouts may need edits.",
+      "The preview shows detected subjects/classes, days, start/end times and rooms. MWF expands to Monday, Wednesday and Friday; TTh expands to Tuesday and Thursday.",
+      "Compare the preview with the original file. A scanned PDF may have no readable text: use a JPG/PNG screenshot through Choose from gallery, paste schedule text, or add rows manually."
+    ],
+    "preview": "Upload .pdf / .docx → Read document → Review detected classes"
+  },
+  {
+    "id": "import-gallery",
+    "group": "Schedule & imports",
+    "icon": "▧",
+    "label": "UPLOAD SCHEDULE: GALLERY IMAGE",
+    "title": "Read a saved photo or screenshot.",
+    "description": "Choose a clear image of your printed schedule so the app can read its text on your device.",
+    "path": "Schedule → Import schedule → Choose from gallery",
+    "tips": [
+      "Select a JPG/JPEG, PNG or WebP image, up to 15 MB. Convert HEIC to JPG/PNG or take a screenshot first.",
+      "Check the image preview. Use Rotate until the text is upright. Remove photo clears the image; choosing another gallery image replaces it.",
+      "Tap Read schedule and wait for progress to finish. Connect to the internet for the first scan while the photo reader loads.",
+      "Review the detected entries against the image. Blurry text, small letters, handwriting and unusual layouts may need corrections or a clearer photo."
+    ],
+    "preview": "Choose from gallery → Rotate if needed → Read schedule → Preview"
+  },
+  {
+    "id": "import-camera",
+    "group": "Schedule & imports",
+    "icon": "◎",
+    "label": "UPLOAD SCHEDULE: LIVE CAPTURE",
+    "title": "Take a photo of your schedule.",
+    "description": "Live capture opens your camera so you can photograph the schedule without selecting a saved image.",
+    "path": "Schedule → Import schedule → Take photo",
+    "tips": [
+      "Tap Take photo and allow camera access when prompted. The app requests video only; it does not need microphone access.",
+      "Keep the full schedule in view, use good light and hold the camera straight. Wait for the live preview, then tap Capture photo.",
+      "Check the photo. Retake opens the camera again; Rotate turns the image; Close camera ends a live preview. Tap Read schedule when the photo is clear.",
+      "Live capture in Android requires the updated APK with camera support. If access fails, allow camera permission in app/browser settings, install the updated APK, or use Choose from gallery. Camera access stops when you close the preview or leave the visible app."
+    ],
+    "preview": "Take photo → Allow camera → Capture photo → Read schedule"
+  },
+  {
+    "id": "import-review",
+    "group": "Schedule & imports",
+    "icon": "✎",
+    "label": "UPLOAD SCHEDULE: REVIEW & EDIT",
+    "title": "Check each class before saving.",
+    "description": "The preview is editable. Correct the detected schedule before it reaches your calendar.",
+    "path": "Import schedule → Preview & edit",
+    "tips": [
+      "For each selected row, check Subject / class title, Weekday, Start time, End time and Room / location. Pay close attention to AM/PM.",
+      "Use Link to subject to connect a class to an existing subject, or leave No linked subject. Importing a title does not create a new subject card.",
+      "Uncheck a row to leave it out. Remove deletes it from the preview; Add row lets you enter a class that was not detected.",
+      "Original text shows where a row came from. Read the summary of classes ready to add before ticking I checked the selected classes, weekdays, AM/PM and any overlaps."
+    ],
+    "preview": "Check title + day + time → Choose rows → Check review box"
+  },
+  {
+    "id": "import-checks",
+    "group": "Schedule & imports",
+    "icon": "✓",
+    "label": "UPLOAD SCHEDULE: IMPORT & FIX ISSUES",
+    "title": "Finish the import with confidence.",
+    "description": "Import checks help you avoid duplicate classes and spot incorrect times.",
+    "path": "Import schedule → Summary / Import classes",
+    "tips": [
+      "A selected row needs a title, weekday and valid start/end times. End must be later than start; correct invalid rows or uncheck them before importing.",
+      "Exact duplicate entries are skipped. Overlaps are highlighted: compare the classes and correct the day or time if needed. You may keep a real overlap after reviewing it.",
+      "View or paste schedule text lets you edit extracted text or paste a class per line, then choose Read this text. Re-reading replaces the unsaved preview, so preserve any edits you need first.",
+      "Check the review box and tap Import classes. Existing classes remain; added classes appear by weekday and time. If signed in, check Saved to cloud. Cancel or × closes an unsaved import."
+    ],
+    "preview": "Fix missing fields → Review overlaps → Import classes → Calendar"
+  },
+  {
+    "id": "focus",
+    "group": "Preferences & study tools",
+    "icon": "◷",
+    "label": "FOCUS TIMER",
+    "title": "Study one task at a time.",
+    "description": "Use a Focus countdown for studying and a Break countdown for resting.",
+    "path": "Focus, or Settings → Study tools → Focus",
+    "tips": [
+      "Choose Focus or Break, then tap Start focus. The button becomes Pause while the countdown runs.",
+      "Pause keeps the remaining time so you can resume. Reset restores the full duration for the selected mode.",
+      "Switching Focus/Break resets the countdown. Finishing a Focus session increases your completed-session count; a Break does not.",
+      "Change the durations in Settings → Profile & focus. Keep the app open for the timer; background notifications are not provided."
+    ],
+    "preview": "Choose mode → Start focus → Pause / Reset"
+  },
+  {
+    "id": "preferences",
+    "group": "Preferences & study tools",
+    "icon": "⚙",
+    "label": "PROFILE & PREFERENCES",
+    "title": "Set up your study space.",
+    "description": "Personalize your name, study durations and navigation shortcuts from Settings.",
+    "path": "Settings → Profile & focus",
+    "tips": [
+      "Tap Settings or your profile icon. Enter Your name and choose Focus minutes and Break minutes.",
+      "Focus can be 1–180 minutes; Break can be 1–60 minutes. Tap Save preferences. Saving resets the timer.",
+      "Use Study tools to open every student feature. Use Customize navigation to change your three shortcuts.",
+      "Replay tutorial opens this guide again. Guide topics lets you go straight to schedule uploads or another feature."
+    ],
+    "preview": "Your name → Timer lengths → Save preferences"
+  },
+  {
+    "id": "cloud",
+    "group": "Account & backups",
+    "icon": "☁",
+    "label": "CLOUD SAVE & ACCOUNT TOOLS",
+    "title": "Keep track of your saved changes.",
+    "description": "Account changes are saved to the cloud. Watch the save status before closing or switching devices.",
+    "path": "Header save status / Settings → Your account",
+    "tips": [
+      "Changes waiting to save and Saving to cloud mean work is still pending. Saved to cloud confirms the save finished.",
+      "Retry save retries pending work. If a confirmation appears, choose Save to cloud. Reconnect if the app cannot reach the server.",
+      "Load cloud copy replaces the current account workspace with its latest saved cloud copy, discarding unsaved changes. Export a backup first if you need to keep them.",
+      "Copy browser records transfers older browser records into your account after confirmation and replaces that account workspace. When another device has changed records, keep a backup of your unsaved work before loading the cloud copy."
+    ],
+    "preview": "Make changes → Saving to cloud → Saved to cloud"
+  },
+  {
+    "id": "backups",
+    "group": "Account & backups",
+    "icon": "⇩",
+    "label": "EXPORT & RESTORE BACKUPS",
+    "title": "Keep a copy of your workspace.",
+    "description": "A StudentMate backup is a JSON file containing your subjects, assignments, notes, schedule and preferences.",
+    "path": "Settings → Your data",
+    "tips": [
+      "Tap Export backup to download a JSON copy. In the Android app, choose where to save it when prompted.",
+      "Tap Import backup and choose a valid StudentMate JSON backup. Confirm only if you want it to replace the current workspace.",
+      "Schedule PDFs, Word documents and images belong in Schedule → Import schedule; they are not workspace backup files.",
+      "After restoring a backup in a signed-in account, check the cloud save status. Keep important backup copies somewhere you can access later."
+    ],
+    "preview": "Export backup → Keep JSON copy → Import backup when needed"
+  },
+  {
+    "id": "installation",
+    "group": "Account & backups",
+    "icon": "⇣",
+    "label": "INSTALLATION & UPDATES",
+    "title": "Keep StudentMate within reach.",
+    "description": "Open StudentMate in the browser, install the Android APK, or use a home-screen web app where supported.",
+    "path": "Download page / Settings → StudentMate app",
+    "tips": [
+      "The main website link shows the download page. Open web app opens your workspace; Download APK (Free) downloads the Android testing app. Open StudentMate.apk from your downloads, choose Install and follow your phone’s prompts.",
+      "In Settings, Install StudentMate starts browser installation when available. How to install StudentMate explains Chrome or Safari home-screen steps. Installed on this device means you already opened an installed app.",
+      "When a new web version is ready, tap Update now. Save or close forms, finish pending saves and pause the focus timer first.",
+      "Web updates refresh app features. Native changes such as Android camera permission need a newly downloaded APK. The iPhone & iPad native app is Coming Soon; the web app is available."
+    ],
+    "preview": "Open web app / Download APK → Install → Update now"
+  },
+  {
+    "id": "sign-out",
+    "group": "Account & backups",
+    "icon": "↗",
+    "label": "SIGN OUT",
+    "title": "Leave your account safely.",
+    "description": "Sign out ends the current session and returns you to the sign-in screen.",
+    "path": "Settings → Your account → Sign out",
+    "tips": [
+      "Wait for Saved to cloud before signing out. Export a backup if you have unsaved work you need to keep.",
+      "Tap Sign out to open the confirmation. Stay signed in closes it without ending the session.",
+      "If unsaved work remains, the confirmation says Sign out and discard. Confirming discards that account’s pending local draft.",
+      "After signing out, sign in again to access your saved account workspace. Other accounts do not receive your records."
+    ],
+    "preview": "Check save status → Sign out → Confirm → Sign-in screen"
+  },
+  {
+    "id": "ready",
+    "group": "Finish",
+    "icon": "✧",
+    "label": "YOU’RE READY",
+    "title": "Make your first little step.",
+    "description": "Add subjects, record assignments and build your schedule in the way that works for you.",
+    "tips": [
+      "Have your schedule ready? Use Schedule → Import schedule, then choose a document, gallery image or live photo.",
+      "Review imported classes carefully before saving. Your calendar repeats them on their selected weekdays.",
+      "Use Settings → Replay tutorial whenever you need help. Go to dashboard closes this guide."
+    ],
+    "preview": "Your subjects · Your deadlines · Your weekly schedule"
+  }
 ];
-function tutorialSeen(){try{return localStorage.getItem(TUTORIAL_KEY)==='seen'}catch{return false}}
-function startTutorial(){tutorialStep=0;drawTutorial();$('tutorial').showModal()}
-function drawTutorial(){const step=tutorialSteps[tutorialStep],last=tutorialStep===tutorialSteps.length-1;$('tutorial').innerHTML=`<div class="tour-top"><span class="eyebrow">QUICK START GUIDE</span><button type="button" class="text-button" onclick="finishTutorial()">Skip tutorial ↗</button></div><div class="tour-progress" aria-label="Step ${tutorialStep+1} of ${tutorialSteps.length}">${tutorialSteps.map((_,i)=>`<span class="${i<=tutorialStep?'filled':''}"></span>`).join('')}</div><div class="tour-body"><div class="tour-icon" aria-hidden="true">${step.icon}</div><div class="eyebrow">${step.label}</div><h2 id="tutorial-title">${step.title}</h2><p id="tutorial-desc">${step.description}</p><div class="tour-example"><span>✧</span>${step.preview}</div><ol class="tour-tips">${step.tips.map(t=>`<li>${t}</li>`).join('')}</ol></div><div class="tour-bottom"><button type="button" class="secondary" onclick="tutorialMove(-1)" ${tutorialStep===0?'disabled':''}>← Back</button><span>${tutorialStep+1} / ${tutorialSteps.length}</span><button type="button" class="primary" onclick="${last?'finishTutorial()':'tutorialMove(1)'}">${last?'Go to dashboard ↗':'Next →'}</button></div>`}
-function tutorialMove(direction){tutorialStep=Math.max(0,Math.min(tutorialSteps.length-1,tutorialStep+direction));drawTutorial();const body=$('tutorial').querySelector('.tour-body');if(body){body.scrollTop=0;body.classList.add(direction>0?'tour-forward':'tour-backward')}$('tutorial').querySelector('.tour-bottom .primary')?.focus({preventScroll:true})}
-function finishTutorial(){try{localStorage.setItem(TUTORIAL_KEY,'seen')}catch{}$('tutorial').close();go('home')}
+const adminTutorialSteps=[
+ {id:'admin-overview',group:'Administrator',icon:'◫',label:'ADMIN DASHBOARD',title:'Monitor account activity.',description:'Your administrator dashboard shows summary counts rather than private student work.',path:'Admin dashboard',tips:['Students counts registered student accounts. Assignments, Subjects and Notes count records across accounts.','Active sessions counts currently valid sessions.','Student accounts shows the latest 50 accounts, their email, creation date and record counts. It does not display private notes or assignment text.'],preview:'Students · Assignments · Subjects · Notes · Active sessions'},
+ {id:'admin-refresh',group:'Administrator',icon:'↻',label:'REFRESH & REVIEW',title:'Load the latest summaries.',description:'Refresh updates the dashboard metrics and account list.',path:'Admin dashboard → Refresh',tips:['Tap Refresh and wait for the account summaries to load.','If an error appears, check your connection and retry. An account without administrator permission cannot load these summaries.','Replay tutorial opens this administrator guide again. Student schedule uploads are in the student workspace.'],preview:'Refresh → Account summaries'},
+ {id:'admin-sign-out',group:'Administrator',icon:'↗',label:'ADMIN SIGN OUT',title:'Finish your admin session.',description:'Sign out returns you to the StudentMate sign-in screen.',path:'Admin dashboard → Sign out',tips:['Tap Sign out to open the confirmation.','Choose Stay signed in to cancel, or Sign out to end the session.','Go to dashboard closes this guide and returns to the administrator dashboard.'],preview:'Sign out → Confirm → Sign-in screen'}
+];
+let activeTutorialSteps=tutorialSteps;
+function tutorialIsAdmin(){return typeof account!=='undefined'&&account?.user?.role==='admin'}
+function tutorialStorageKey(){return TUTORIAL_KEY+(tutorialIsAdmin()?'.admin':'')}
+function tutorialSeen(){try{return localStorage.getItem(tutorialStorageKey())==='seen'}catch{return false}}
+function offerTutorial(){if(!tutorialSeen()&&!document.querySelector('dialog[open]')&&!document.body.classList.contains('auth-required'))startTutorial()}
+function startTutorial(){activeTutorialSteps=tutorialIsAdmin()?adminTutorialSteps:tutorialSteps;tutorialStep=0;drawTutorial();if(!$('tutorial').open)$('tutorial').showModal()}
+function tutorialTopicOptions(){const groups=[...new Set(activeTutorialSteps.map(s=>s.group))];return groups.map(group=>`<optgroup label="${esc(group)}">${activeTutorialSteps.map((step,i)=>step.group===group?`<option value="${i}" ${i===tutorialStep?'selected':''}>${i+1}. ${esc(step.label)}</option>`:'').join('')}</optgroup>`).join('')}
+function drawTutorial(){const step=activeTutorialSteps[tutorialStep],last=tutorialStep===activeTutorialSteps.length-1;$('tutorial').innerHTML=`<div class="tour-top"><span class="eyebrow">STUDENTMATE GUIDE</span><button type="button" class="text-button" onclick="finishTutorial()">Skip tutorial ↗</button></div><div class="tour-progress" role="progressbar" aria-label="Tutorial progress" aria-valuemin="1" aria-valuemax="${activeTutorialSteps.length}" aria-valuenow="${tutorialStep+1}">${activeTutorialSteps.map((_,i)=>`<span class="${i<=tutorialStep?'filled':''}"></span>`).join('')}</div><div class="tour-topics"><label for="tour-topic">Guide topics</label><select id="tour-topic" onchange="tutorialJump(this.value)">${tutorialTopicOptions()}</select></div><div class="tour-body"><div class="tour-icon" aria-hidden="true">${step.icon}</div><div class="eyebrow">${esc(step.label)}</div><h2 id="tutorial-title">${esc(step.title)}</h2><p id="tutorial-desc">${esc(step.description)}</p>${step.path?`<div class="tour-location"><strong>Where to find it</strong><span>${esc(step.path)}</span></div>`:''}<div class="tour-example"><span aria-hidden="true">✧</span>${esc(step.preview)}</div><ol class="tour-tips">${step.tips.map(t=>`<li>${esc(t)}</li>`).join('')}</ol></div><div class="tour-bottom"><button type="button" class="secondary" onclick="tutorialMove(-1)" ${tutorialStep===0?'disabled':''}>← Back</button><span>${tutorialStep+1} / ${activeTutorialSteps.length}</span><button type="button" class="primary" onclick="${last?'finishTutorial()':'tutorialMove(1)'}">${last?'Go to dashboard ↗':'Next →'}</button></div>`}
+function tutorialJump(value){const next=Number(value);if(!Number.isInteger(next)||next<0||next>=activeTutorialSteps.length)return;const direction=next>=tutorialStep?1:-1;tutorialStep=next;drawTutorial();const body=$('tutorial').querySelector('.tour-body');if(body){body.scrollTop=0;body.classList.add(direction>0?'tour-forward':'tour-backward')}$('tour-topic')?.focus({preventScroll:true})}
+function tutorialMove(direction){tutorialJump(Math.max(0,Math.min(activeTutorialSteps.length-1,tutorialStep+direction)));$('tutorial').querySelector('.tour-bottom .primary')?.focus({preventScroll:true})}
+function finishTutorial(){try{localStorage.setItem(tutorialStorageKey(),'seen')}catch{}$('tutorial').close();go('home')}
 $('tutorial').addEventListener('cancel',e=>{e.preventDefault();finishTutorial()});
