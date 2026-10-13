@@ -167,11 +167,14 @@ body.auth-required #auth::-webkit-scrollbar{display:none;width:0;height:0}
 
 /* Keep login and registration fields reachable above the mobile keyboard. */
 body.auth-required #auth{inset:auto 0 auto;top:var(--auth-viewport-top,0px);height:var(--auth-viewport-height,100dvh);scroll-padding:24px 0;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch}
-body.auth-required #auth .auth-screen{min-height:100%}
+body.auth-required #auth .auth-screen{min-height:100%;transition:padding .28s ease,gap .28s ease}
+body.auth-required #auth .auth-panel{animation:auth-form-enter .28s ease both}
+@keyframes auth-form-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){body.auth-required #auth .auth-screen{transition:none}body.auth-required #auth .auth-panel{animation:none}}
 #auth .auth-field{scroll-margin:24px 0}
 @media(max-width:600px){
   #auth .auth-field input{font-size:16px}
-  body.auth-required.auth-keyboard-open #auth .auth-screen{padding:16px 16px 32px;gap:16px}
+  body.auth-required.auth-keyboard-open #auth .auth-screen{padding:28px 16px 32px;gap:24px}
   .auth-keyboard-open .auth-brand{font-size:20px}
   .auth-keyboard-open .auth-brand-accent{display:none}
   .auth-keyboard-open .auth-panel{padding:16px}
