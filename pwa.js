@@ -1,14 +1,28 @@
 (() => {
-  let installPrompt=null,registration=null,refreshing=false,needsReload=false;
+  let installPrompt=null,registration=null,refreshing=false,needsReload=false,splashFinished=false;
+  const mobile=/Android|iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const dismissalKey='studentmate.install-dismissed';
+  function dismissed(){try{return sessionStorage.getItem(dismissalKey)==='yes'}catch{return false}}
+  function dismissInstall(){try{sessionStorage.setItem(dismissalKey,'yes')}catch{}dialog.close()}
   const installed=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
   const notice=document.createElement('section');
   notice.id='pwa-update';notice.hidden=true;notice.setAttribute('aria-live','polite');
   notice.innerHTML='<div><strong>A new StudentMate update is ready</strong><p>Refresh to use the latest version.</p></div><button type="button" id="pwa-refresh">Update now</button><button type="button" id="pwa-dismiss" aria-label="Dismiss update notice">×</button>';
   document.body.append(notice);
   const dialog=document.createElement('dialog');dialog.id='pwa-install-help';dialog.setAttribute('aria-label','Install StudentMate');
-  dialog.innerHTML='<h2>StudentMate on your phone</h2><p id="pwa-install-message"></p><button type="button" id="pwa-install-close">Got it</button>';
+  dialog.innerHTML='<div class="pwa-install-mark" aria-hidden="true">✦</div><h2>Install StudentMate</h2><p id="pwa-install-message"></p><div class="pwa-install-actions"><button type="button" id="pwa-install-close">Not now</button><button type="button" id="pwa-install-confirm">Install StudentMate</button></div>';
   document.body.append(dialog);
-  document.getElementById('pwa-install-close').onclick=()=>dialog.close();
+  document.getElementById('pwa-install-close').onclick=dismissInstall;
+  document.getElementById('pwa-install-confirm').onclick=install;
+  dialog.addEventListener('cancel',event=>{event.preventDefault();dismissInstall()});
+  function suggestInstall(){
+    if(!splashFinished||!mobile||installed()||dismissed()||dialog.open)return;
+    document.getElementById('pwa-install-message').textContent='Keep your study space one tap away. Add StudentMate to your home screen and open it like an app.';
+    document.getElementById('pwa-install-confirm').hidden=false;
+    document.getElementById('pwa-install-close').textContent='Not now';
+    dialog.showModal();
+  }
+  document.addEventListener('studentmate:splash-ready',()=>{splashFinished=true;setTimeout(suggestInstall,700)},{once:true});
   document.getElementById('pwa-dismiss').onclick=()=>{notice.hidden=true};
   function installLabel(){return installed()?'Installed on this device':installPrompt?'Install StudentMate':'How to install StudentMate'}
   function renderInstall(){
@@ -20,13 +34,16 @@
     button.disabled=installed();
   }
   async function install(){
-    if(installPrompt){const prompt=installPrompt;installPrompt=null;await prompt.prompt();await prompt.userChoice;renderInstall();return;}
+    if(installed()){dismissInstall();return;}
+    if(installPrompt){const prompt=installPrompt;installPrompt=null;dismissInstall();await prompt.prompt();await prompt.userChoice;renderInstall();return;}
     const ios=/iPad|iPhone|iPod/.test(navigator.userAgent);
     document.getElementById('pwa-install-message').textContent=ios?'Open this link in Safari. Tap Share, choose Add to Home Screen, then tap Add.':'Open this link in Chrome on your phone. Open the browser menu (⋮), then choose Install app or Add to Home screen. If you opened it in Messenger or Facebook, choose Open in browser first.';
-    dialog.showModal();
+    document.getElementById('pwa-install-confirm').hidden=true;
+    document.getElementById('pwa-install-close').textContent='Got it';
+    if(!dialog.open)dialog.showModal();
   }
-  window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;renderInstall()});
-  window.addEventListener('appinstalled',()=>{installPrompt=null;renderInstall();toast('StudentMate installed')});
+  window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;renderInstall();suggestInstall()});
+  window.addEventListener('appinstalled',()=>{installPrompt=null;if(dialog.open)dialog.close();renderInstall();toast('StudentMate installed')});
   new MutationObserver(renderInstall).observe(document.getElementById('content'),{childList:true,subtree:true});
   renderInstall();
   function showUpdate(){notice.hidden=false;document.getElementById('pwa-refresh').disabled=false;document.getElementById('pwa-refresh').textContent='Update now'}
