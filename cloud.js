@@ -39,3 +39,42 @@ window.addEventListener('online',()=>{if(account){if(!cloudReady)resumeAccount()
 document.addEventListener('studentmate:splash-ready',()=>{showAccountGate('login');render();resumeAccount()},{once:true});
 function ensurePasswordToggle(){const input=$('auth-password');if(!input||input.dataset.passwordToggle)return;input.dataset.passwordToggle='ready';const wrapper=document.createElement('div');wrapper.className='password-field auth-field';wrapper.innerHTML='<span class="auth-field-icon">'+authIcon('lock')+'</span>';input.parentNode.insertBefore(wrapper,input);wrapper.append(input);const button=document.createElement('button');button.type='button';button.className='password-toggle';button.textContent='Show';button.setAttribute('aria-label','Show password');button.setAttribute('aria-controls','auth-password');button.setAttribute('aria-pressed','false');button.addEventListener('click',()=>{const visible=input.type==='password';input.type=visible?'text':'password';button.textContent=visible?'Hide':'Show';button.setAttribute('aria-label',`${visible?'Hide':'Show'} password`);button.setAttribute('aria-pressed',String(visible))});wrapper.append(button)}
 const passwordToggleObserver=new MutationObserver(ensurePasswordToggle);passwordToggleObserver.observe(document.body,{childList:true,subtree:true});ensurePasswordToggle();
+
+// Mobile keyboards resize the visual viewport, including in in-app browsers.
+let authViewportBaseline=window.visualViewport?.height||window.innerHeight;
+let authViewportFrame;
+function updateAuthViewport(keepFocusedVisible=false){
+  cancelAnimationFrame(authViewportFrame);
+  authViewportFrame=requestAnimationFrame(()=>{
+    const viewport=window.visualViewport;
+    const height=viewport?.height||window.innerHeight;
+    const dialog=$('auth');
+    const focused=document.activeElement;
+    const editing=dialog?.contains(focused)&&focused.matches('input');
+    if(!editing)authViewportBaseline=Math.max(authViewportBaseline,height);
+    const keyboardOpen=!!editing&&authViewportBaseline-height>100;
+    document.body.classList.toggle('auth-keyboard-open',keyboardOpen);
+    document.documentElement.style.setProperty('--auth-viewport-height',`${height}px`);
+    document.documentElement.style.setProperty('--auth-viewport-top',`${viewport?.offsetTop||0}px`);
+    if(!keepFocusedVisible||!editing||!dialog.open)return;
+    requestAnimationFrame(()=>{
+      if(document.activeElement!==focused)return;
+      const field=focused.closest('.auth-field')||focused;
+      const bounds=field.getBoundingClientRect();
+      const visible=dialog.getBoundingClientRect();
+      if(keyboardOpen){
+        dialog.scrollTop+=bounds.top-visible.top-32;
+      }else if(bounds.bottom>visible.bottom-24){
+        dialog.scrollTop+=bounds.bottom-visible.bottom+24;
+      }else if(bounds.top<visible.top+24){
+        dialog.scrollTop+=bounds.top-visible.top-24;
+      }
+    });
+  });
+}
+document.addEventListener('focusin',event=>{if(event.target.closest('#auth'))updateAuthViewport(true)});
+document.addEventListener('focusout',()=>updateAuthViewport());
+window.addEventListener('resize',()=>updateAuthViewport(true));
+window.visualViewport?.addEventListener('resize',()=>updateAuthViewport(true));
+window.visualViewport?.addEventListener('scroll',()=>updateAuthViewport());
+updateAuthViewport();
