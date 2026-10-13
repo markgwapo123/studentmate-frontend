@@ -343,3 +343,11 @@ body.auth-required #auth .auth-panel{animation:auth-form-enter .28s ease both}
  aside #nav>button.active{background:#e9efe3;color:#456349}
 }
 @media(max-width:360px){aside #nav>button{font-size:9px}}
+/* Checkbox selection is staged until the user applies a bulk action. */
+#content #task-selection-bar[hidden]{display:none}
+#content #task-selection-bar{position:fixed;z-index:45;bottom:22px;left:calc(246px + (100% - 246px)/2);transform:translateX(-50%);width:min(620px,calc(100% - 280px));display:flex;align-items:center;gap:14px;padding:16px;background:var(--paper);border:1px solid #b9cdb3;border-radius:15px;box-shadow:0 8px 30px #303d3826}
+.task-selection-copy{flex:1;min-width:0}.task-selection-copy strong{font-size:13px;display:block}.task-selection-copy span{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+#content .task-selection-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}#content .task-selection-actions button{font-size:11px}
+#content:has(#task-selection-bar:not([hidden])){padding-bottom:150px}
+@media(max-width:1100px) and (min-width:761px){#content #task-selection-bar{left:calc(210px + (100% - 210px)/2);width:min(620px,calc(100% - 240px))}}
+@media(max-width:760px){#content #task-selection-bar{left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:calc(100% - 24px);padding:12px;flex-direction:column;align-items:stretch;gap:9px}#content .task-selection-actions .primary,#content .task-selection-actions .secondary{flex:1;min-height:42px}#content .task-selection-actions .text-button{min-height:36px}.task-selection-copy span{display:none}}
