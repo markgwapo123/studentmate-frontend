@@ -4,7 +4,7 @@
   const dismissalKey='studentmate.install-dismissed';
   function dismissed(){try{return sessionStorage.getItem(dismissalKey)==='yes'}catch{return false}}
   function dismissInstall(){try{sessionStorage.setItem(dismissalKey,'yes')}catch{}dialog.close()}
-  const installed=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  const installed=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true||navigator.userAgent.includes('StudentMateAndroid/');
   const notice=document.createElement('section');
   notice.id='pwa-update';notice.hidden=true;notice.setAttribute('aria-live','polite');
   notice.innerHTML='<div><strong>A new StudentMate update is ready</strong><p>Refresh to use the latest version.</p></div><button type="button" id="pwa-refresh">Update now</button><button type="button" id="pwa-dismiss" aria-label="Dismiss update notice">×</button>';
