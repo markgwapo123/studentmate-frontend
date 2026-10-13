@@ -3,7 +3,7 @@
   "name": "StudentMate",
   "short_name": "StudentMate",
   "description": "Your everyday study companion: assignments, subjects, notes, schedule and focus.",
-  "start_url": "/",
+  "start_url": "/app.html",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f7f5f0",

@@ -1,0 +1,11 @@
+StudentMate download page update
+
+1. Extract this ZIP.
+2. Open the main page of markgwapo123/studentmate-frontend on GitHub.
+3. Choose Add file > Upload files. Upload the six code files to the repository root (the same folder as app.js), replacing matching files. Do not upload this instructions file.
+4. Commit the changes. If Vercel is connected to this branch with automatic deployments, wait for the new deployment to finish. Otherwise redeploy that branch in Vercel.
+5. Open the main website link: it should show the download page. Open web app leads to app.html. Download APK uses the existing downloads/StudentMate.apk file.
+
+The Android app user-agent and installed PWA are routed to app.html. Existing local data keys and app code are preserved. PWA start_url now points to app.html; service-worker cache includes both pages. On previously cached installations, use Update now when the update notice appears.
+
+Checks completed: syntax, local page assets and links, exact app preservation, manifest, APK archive, browser/native redirects, and service-worker routes. Browser visual QA and live deployment were not available.
