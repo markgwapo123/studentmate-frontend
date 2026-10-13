@@ -43,6 +43,7 @@ const passwordToggleObserver=new MutationObserver(ensurePasswordToggle);password
 // Mobile keyboards resize the visual viewport, including in in-app browsers.
 let authViewportBaseline=window.visualViewport?.height||window.innerHeight;
 let authViewportFrame;
+let authFocusTimer;
 function updateAuthViewport(keepFocusedVisible=false){
   cancelAnimationFrame(authViewportFrame);
   authViewportFrame=requestAnimationFrame(()=>{
@@ -53,25 +54,38 @@ function updateAuthViewport(keepFocusedVisible=false){
     const editing=dialog?.contains(focused)&&focused.matches('input');
     if(!editing)authViewportBaseline=Math.max(authViewportBaseline,height);
     const keyboardOpen=!!editing&&authViewportBaseline-height>100;
+    const keyboardWasOpen=document.body.classList.contains('auth-keyboard-open');
     document.body.classList.toggle('auth-keyboard-open',keyboardOpen);
     document.documentElement.style.setProperty('--auth-viewport-height',`${height}px`);
     document.documentElement.style.setProperty('--auth-viewport-top',`${viewport?.offsetTop||0}px`);
-    if(!keepFocusedVisible||!editing||!dialog.open)return;
-    requestAnimationFrame(()=>{
-      if(document.activeElement!==focused)return;
+    if(!dialog?.open)return;
+    if(keyboardWasOpen&&!keyboardOpen){
+      clearTimeout(authFocusTimer);
+      dialog.scrollTo({top:0,behavior:authScrollBehavior()});
+    }
+    if(!keepFocusedVisible||!editing)return;
+    clearTimeout(authFocusTimer);
+    // Wait for the keyboard to settle instead of moving on every resize frame.
+    authFocusTimer=setTimeout(()=>{
+      if(document.activeElement!==focused||!dialog.open)return;
       const field=focused.closest('.auth-field')||focused;
       const bounds=field.getBoundingClientRect();
       const visible=dialog.getBoundingClientRect();
-      if(keyboardOpen){
-        dialog.scrollTop+=bounds.top-visible.top-32;
-      }else if(bounds.bottom>visible.bottom-24){
-        dialog.scrollTop+=bounds.bottom-visible.bottom+24;
-      }else if(bounds.top<visible.top+24){
-        dialog.scrollTop+=bounds.top-visible.top-24;
+      const padding=Math.min(64,visible.height*.15);
+      let bottom=bounds.bottom;
+      // Keep both email and password reachable when they fit together.
+      if(focused.id==='auth-email'){
+        const password=$('auth-password')?.getBoundingClientRect();
+        if(password&&password.bottom-bounds.top<visible.height-padding*2)bottom=password.bottom;
       }
-    });
+      let delta=0;
+      if(bottom>visible.bottom-padding)delta=bottom-visible.bottom+padding;
+      if(bounds.top-delta<visible.top+padding)delta=bounds.top-visible.top-padding;
+      if(Math.abs(delta)>2)dialog.scrollTo({top:dialog.scrollTop+delta,behavior:authScrollBehavior()});
+    },160);
   });
 }
+function authScrollBehavior(){return window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}
 document.addEventListener('focusin',event=>{if(event.target.closest('#auth'))updateAuthViewport(true)});
 document.addEventListener('focusout',()=>updateAuthViewport());
 window.addEventListener('resize',()=>updateAuthViewport(true));
