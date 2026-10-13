@@ -1,20 +1,30 @@
 (function(){
 'use strict';
 const P=StudentMateScheduleParser,MAX_BYTES=15*1024*1024;
-let generation=0,draft=null,libs={};
+let generation=0,draft=null,libs={},liveStream=null,cameraSession=0,photoSession=0,photoFile=null,photoCanvas=null,photoRotation=0,ocrWorker=null,ocrAbort=null;
 const dialog=document.createElement('dialog');dialog.id='schedule-import';dialog.setAttribute('aria-labelledby','schedule-import-title');document.body.append(dialog);
 const normal=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 function owner(){return typeof account!=='undefined'&&account?account.user.id:'browser';}
 function matchingSubject(title){const t=normal(title);return state.subjects.find(s=>normal(s.name)===t||normal(s.code)&&t.startsWith(normal(s.code)))?.id||'';}
-function close(){generation++;draft=null;dialog.close();}
+function close(){generation++;photoSession++;stopCamera();ocrAbort?.abort();ocrAbort=null;if(ocrWorker){ocrWorker.terminate().catch(()=>{});ocrWorker=null;}photoFile=null;photoCanvas=null;draft=null;dialog.close();}
 function status(message,error=false){const el=dialog.querySelector('#schedule-import-status');if(el){el.textContent=message;el.classList.toggle('import-error',error);}}
 function makeRow(data={}){return {id:uid(),selected:true,title:'',day:'',start:'',end:'',room:'',subject:'',source:'',warning:'',...data,subject:data.subject||matchingSubject(data.title)};}
 function open(){
  if(dialog.open)return;
  draft={rows:[],owner:owner(),state,raw:'',warnings:[],reading:false};
- dialog.innerHTML=`<div class="import-heading"><div><div class="eyebrow">BRING YOUR CLASSES TOGETHER</div><h2 id="schedule-import-title">Import schedule</h2></div><button type="button" class="close" id="schedule-import-close" aria-label="Close schedule import">×</button></div><div class="import-body"><label class="import-upload" for="schedule-upload"><strong>Upload your class schedule</strong><span>PDF or Word (.docx) · Up to 15 MB</span><input type="file" id="schedule-upload" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></label><p id="schedule-import-status" role="status" aria-live="polite">Choose a file. Review the detected classes before importing.</p><p class="import-hint">Files are read on this device. Different table and text layouts are supported. Compare the preview with your original file for missing or misread classes. Scans and unclear layouts may need manual entry. Older .doc files: save as .docx first.</p><div class="import-preview-heading"><h3>Preview &amp; edit <span id="import-count">0</span></h3><button type="button" class="secondary" id="import-add">＋ Add row</button></div><div id="import-warnings" role="status"></div><div id="import-rows"></div><details class="import-source"><summary>View or paste schedule text</summary><p>Edit the extracted text and try again. Use one class per line, for example: Mathematics | Monday | 8:00 AM - 9:00 AM | Room 201.</p><textarea id="import-raw" maxlength="200000" aria-label="Extracted schedule text" placeholder="Paste schedule text here…"></textarea><button type="button" class="secondary" id="import-reparse">Read this text</button></details></div><form id="import-confirm-form" class="import-bottom"><label class="import-review"><input type="checkbox" id="import-reviewed" required><span>I checked the selected classes, weekdays, AM/PM and any overlaps.</span></label><p id="import-summary" aria-live="polite">No classes selected.</p><div class="import-actions"><button type="button" class="secondary" id="import-cancel">Cancel</button><button type="submit" class="primary" id="import-save" disabled>Import classes</button></div></form>`;
+ dialog.innerHTML=`<div class="import-heading"><div><div class="eyebrow">BRING YOUR CLASSES TOGETHER</div><h2 id="schedule-import-title">Import schedule</h2></div><button type="button" class="close" id="schedule-import-close" aria-label="Close schedule import">×</button></div><div class="import-body"><div class="import-methods"><button type="button" class="import-method" id="import-document"><span aria-hidden="true">▤</span><strong>Import file</strong><small>PDF or Word</small></button><button type="button" class="import-method" id="import-gallery"><span aria-hidden="true">▧</span><strong>Choose from gallery</strong><small>JPG, PNG or WebP</small></button><button type="button" class="import-method" id="import-camera"><span aria-hidden="true">◎</span><strong>Take photo</strong><small>Live camera capture</small></button></div><input type="file" id="schedule-upload" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden><input type="file" id="schedule-gallery" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" hidden><section id="import-camera-panel" class="import-camera-panel" hidden aria-label="Live camera"><video id="import-video" autoplay muted playsinline></video><p>Keep the whole schedule in view. Use good light and hold the camera straight.</p><div class="import-camera-actions"><button type="button" class="secondary" id="camera-cancel">Close camera</button><button type="button" class="primary" id="camera-capture">Capture photo</button></div></section><section id="import-photo-panel" class="import-photo-panel" hidden aria-label="Review schedule photo"><div id="import-photo-preview" aria-label="Schedule photo preview"></div><p>Make sure the text is sharp and upright. Rotate or choose another photo if needed.</p><div class="import-photo-actions"><button type="button" class="secondary" id="photo-rotate">↻ Rotate</button><button type="button" class="secondary" id="photo-retake">Retake</button><button type="button" class="text-button" id="photo-discard">Remove photo</button><button type="button" class="primary" id="photo-process">Read schedule</button></div></section><progress id="import-ocr-progress" max="100" value="0" hidden aria-label="Reading image text"></progress><p id="schedule-import-status" role="status" aria-live="polite">Choose a document, a gallery image, or take a photo. Review the detected classes before importing.</p><p class="import-hint">Files are read on this device. Different table and text layouts are supported. Compare the preview with your original file for missing or misread classes. Blurry photos, handwriting and unclear layouts may need manual correction. Older .doc files: save as .docx first.</p><div class="import-preview-heading"><h3>Preview &amp; edit <span id="import-count">0</span></h3><button type="button" class="secondary" id="import-add">＋ Add row</button></div><div id="import-warnings" role="status"></div><div id="import-rows"></div><details class="import-source"><summary>View or paste schedule text</summary><p>Edit the extracted text and try again. Use one class per line, for example: Mathematics | Monday | 8:00 AM - 9:00 AM | Room 201.</p><textarea id="import-raw" maxlength="200000" aria-label="Extracted schedule text" placeholder="Paste schedule text here…"></textarea><button type="button" class="secondary" id="import-reparse">Read this text</button></details></div><form id="import-confirm-form" class="import-bottom"><label class="import-review"><input type="checkbox" id="import-reviewed" required><span>I checked the selected classes, weekdays, AM/PM and any overlaps.</span></label><p id="import-summary" aria-live="polite">No classes selected.</p><div class="import-actions"><button type="button" class="secondary" id="import-cancel">Cancel</button><button type="submit" class="primary" id="import-save" disabled>Import classes</button></div></form>`;
  dialog.querySelector('#schedule-import-close').onclick=close;dialog.querySelector('#import-cancel').onclick=close;
+ dialog.querySelector('#import-document').onclick=()=>dialog.querySelector('#schedule-upload').click();
+ dialog.querySelector('#import-gallery').onclick=()=>dialog.querySelector('#schedule-gallery').click();
+ dialog.querySelector('#import-camera').onclick=startCamera;
  dialog.querySelector('#schedule-upload').onchange=e=>readFile(e.target.files[0]);
+ dialog.querySelector('#schedule-gallery').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(file)await choosePhoto(file);};
+ dialog.querySelector('#camera-cancel').onclick=()=>{stopCamera();status('Camera closed. Choose a file or photo to continue.');};
+ dialog.querySelector('#camera-capture').onclick=capturePhoto;
+ dialog.querySelector('#photo-rotate').onclick=async()=>{if(!photoFile||draft.reading)return;photoRotation=(photoRotation+90)%360;await previewPhoto();};
+ dialog.querySelector('#photo-retake').onclick=startCamera;
+ dialog.querySelector('#photo-discard').onclick=()=>{photoSession++;photoFile=null;photoCanvas=null;dialog.querySelector('#import-photo-preview').replaceChildren();dialog.querySelector('#import-photo-panel').hidden=true;};
+ dialog.querySelector('#photo-process').onclick=processPhoto;
  dialog.querySelector('#import-add').onclick=()=>{draft.rows.push(makeRow());drawRows();dialog.querySelector('#import-rows').lastElementChild?.scrollIntoView({block:'nearest'});};
  dialog.querySelector('#import-reparse').onclick=()=>{if(draft.reading)return;const raw=dialog.querySelector('#import-raw').value;if(raw.length>200000){status('This text is too long. Import a smaller section.',true);return;}loadParsed(P.parse({lines:raw.split(/\n/)}),raw);status('Text read. Check every selected class before importing.');};
  dialog.querySelector('#import-confirm-form').onsubmit=commit;
@@ -42,7 +52,7 @@ function updateSummary(){
 }
 function drawRows(){dialog.querySelector('#import-rows').innerHTML=draft.rows.map(rowMarkup).join('')||'<div class="import-empty">Detected classes will appear here. You can also add a row manually.</div>';dialog.querySelector('#import-reviewed').checked=false;updateSummary();}
 function loadParsed(result,raw){draft.rows=result.rows.map(makeRow);draft.warnings=result.warnings;draft.raw=raw;dialog.querySelector('#import-raw').value=raw.slice(0,200000);dialog.querySelector('#import-warnings').textContent=result.warnings.join(' ');drawRows();}
-function busy(value){draft.reading=value;for(const id of ['schedule-upload','import-add','import-reparse'])dialog.querySelector('#'+id).disabled=value;dialog.querySelector('#import-rows').inert=value;dialog.querySelector('#import-reviewed').checked=false;updateSummary();}
+function busy(value){draft.reading=value;for(const id of ['schedule-upload','schedule-gallery','import-document','import-gallery','import-camera','photo-rotate','photo-retake','photo-discard','photo-process','import-add','import-reparse'])dialog.querySelector('#'+id).disabled=value;dialog.querySelector('#import-rows').inert=value;dialog.querySelector('#import-reviewed').checked=false;updateSummary();}
 async function script(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>{s.remove();reject(Error('The document reader could not load. Reconnect and try again.'));};document.head.append(s);});}
 class PDFResources {
  async fetch({kind,filename}){
@@ -52,9 +62,9 @@ class PDFResources {
 }
 async function pdfLib(){if(!libs.pdf)libs.pdf=import('./vendor/pdfjs/pdf.mjs').then(pdf=>{pdf.GlobalWorkerOptions.workerSrc=new URL('./vendor/pdfjs/pdf.worker.mjs',location.href).href;return pdf;}).catch(e=>{libs.pdf=null;throw e;});return libs.pdf;}
 async function wordLib(){if(!libs.word)libs.word=script('vendor/mammoth/mammoth.browser.js').then(()=>window.mammoth).catch(e=>{libs.word=null;throw e;});return libs.word;}
-function pdfLines(items){
+function pdfLines(items,tolerance=4){
  const ordered=items.filter(i=>i.str?.trim()).map(i=>({text:i.str,x:i.transform[4],y:i.transform[5],width:i.width||0,height:Math.abs(i.transform[3])||10})).sort((a,b)=>b.y-a.y||a.x-b.x),lines=[];
- for(const item of ordered){let row=lines.find(r=>Math.abs(r.y-item.y)<Math.min(4,item.height*.35));if(!row){row={y:item.y,items:[]};lines.push(row);}row.items.push(item);}
+ for(const item of ordered){let row=lines.find(r=>Math.abs(r.y-item.y)<Math.min(tolerance,item.height*.4));if(!row){row={y:item.y,items:[]};lines.push(row);}row.items.push(item);}
  return lines.sort((a,b)=>b.y-a.y).map(row=>{row.items.sort((a,b)=>a.x-b.x);let cells=[],last=null;for(const item of row.items){if(!last||item.x-(last.x+last.width)>14)cells.push({x:item.x,text:item.text});else cells[cells.length-1].text+=' '+item.text;last=item;}return {cells,items:row.items,text:cells.map(c=>c.text).join(' | ')};});
 }
 function pdfTables(lines){
@@ -84,12 +94,45 @@ async function readWord(buffer){
  const html=new DOMParser().parseFromString(result.value,'text/html');const tables=[...html.querySelectorAll('table')].filter(t=>!t.parentElement?.closest('table')).map(wordTable),lines=[...html.querySelectorAll('p')].filter(p=>!p.closest('table')).map(p=>p.textContent);const raw=[...tables.flatMap(t=>t.map(r=>r.join(' | '))),...lines].join('\n');if(raw.length>200000)throw Error('Too much text. Save only the schedule section in a smaller .docx file.');return {result:P.parse({tables,lines}),raw};
 }
 async function readFile(file){
- if(!file||!draft)return;if(draft.rows.length&&!confirm('Replace this unsaved import preview with the new file?')){dialog.querySelector('#schedule-upload').value='';return;}
+ if(!file||!draft||draft.reading)return;stopCamera();if(draft.rows.length&&!confirm('Replace this unsaved import preview with the new file?')){dialog.querySelector('#schedule-upload').value='';return;}
  if(file.size>MAX_BYTES){status('Choose a file smaller than 15 MB.',true);return;}const extension=file.name.split('.').pop().toLowerCase();if(!['pdf','docx'].includes(extension)){status('Choose a PDF or .docx file. Save older Word .doc files as .docx first.',true);return;}
  const token=++generation;busy(true);status('Reading '+file.name+'…');
- try{const buffer=await file.arrayBuffer(),bytes=new Uint8Array(buffer);if(extension==='pdf'&&String.fromCharCode(...bytes.slice(0,5))!=='%PDF-')throw Error('This file is not a valid PDF.');if(extension==='docx'&&(bytes[0]!==80||bytes[1]!==75))throw Error('This file is not a valid .docx document.');const data=extension==='pdf'?await readPdf(buffer,token):await readWord(buffer);if(token!==generation||!draft)return;loadParsed(data.result,data.raw);status(`${file.name}: ${data.result.rows.length} entries detected. Review every selected class.`);}
+ try{const buffer=await file.arrayBuffer(),bytes=new Uint8Array(buffer);if(extension==='pdf'&&String.fromCharCode(...bytes.slice(0,5))!=='%PDF-')throw Error('This file is not a valid PDF.');if(extension==='docx'&&(bytes[0]!==80||bytes[1]!==75))throw Error('This file is not a valid .docx document.');const data=extension==='pdf'?await readPdf(buffer,token):await readWord(buffer);if(token!==generation||!draft)return;photoSession++;photoFile=null;photoCanvas=null;dialog.querySelector('#import-photo-preview').replaceChildren();dialog.querySelector('#import-photo-panel').hidden=true;loadParsed(data.result,data.raw);status(`${file.name}: ${data.result.rows.length} entries detected. Review every selected class.`);}
  catch(e){if(token!==generation||!draft)return;const message=e.name==='PasswordException'?'This PDF is password protected. Upload an unlocked copy.':e.name==='InvalidPDFException'?'The PDF could not be read. Try another copy.':e.message||'Could not read this file. Try an unlocked PDF or .docx file.';status(message,true);}
  finally{if(token===generation&&draft){busy(false);dialog.querySelector('#schedule-upload').value='';}}
+}
+function stopCamera(){cameraSession++;StudentMatePhoto.stop(liveStream);liveStream=null;const video=dialog.querySelector('#import-video');if(video){StudentMatePhoto.stop(video.srcObject);video.srcObject=null;}const panel=dialog.querySelector('#import-camera-panel');if(panel)panel.hidden=true;}
+async function startCamera(){
+ if(!draft||draft.reading)return;stopCamera();const token=++cameraSession,video=dialog.querySelector('#import-video'),panel=dialog.querySelector('#import-camera-panel'),button=dialog.querySelector('#camera-capture');panel.hidden=false;button.disabled=true;status('Opening camera… Allow camera access when prompted.');
+ try{const stream=await StudentMatePhoto.camera(video,'environment',()=>!!draft&&token===cameraSession&&document.visibilityState!=='hidden');if(!draft||token!==cameraSession){StudentMatePhoto.stop(stream);return;}liveStream=stream;button.disabled=false;status('Camera ready. Keep the text sharp, then capture your schedule.');}
+ catch(error){if(draft&&token===cameraSession){stopCamera();if(error.name!=='AbortError')status(error.message||'Could not open the camera. Choose an image from your gallery.',true);}}
+}
+async function capturePhoto(){
+ if(!draft||draft.reading)return;const token=cameraSession,button=dialog.querySelector('#camera-capture');button.disabled=true;
+ try{const file=await StudentMatePhoto.capture(dialog.querySelector('#import-video'));if(!draft||token!==cameraSession)return;stopCamera();await choosePhoto(file);}
+ catch(error){if(draft&&token===cameraSession)status(error.message,true);}
+ finally{if(draft)button.disabled=false;}
+}
+async function choosePhoto(file){
+ if(!draft||draft.reading)return;if(file.size>MAX_BYTES){status('Choose an image smaller than 15 MB.',true);return;}if(!/^image\/(jpeg|png|webp)$/.test(file.type)&&!/[.](jpg|jpeg|png|webp)$/i.test(file.name)){status('Choose a JPG, PNG or WebP image. For HEIC, export the photo as JPG or take a screenshot first.',true);return;}
+ stopCamera();photoFile=file;photoRotation=0;await previewPhoto();
+}
+async function previewPhoto(){
+ const token=++photoSession,file=photoFile;photoCanvas=null;dialog.querySelector('#photo-process').disabled=true;status('Preparing image…');
+ try{const canvas=await StudentMatePhoto.prepare(file,photoRotation);if(!draft||token!==photoSession)return;photoCanvas=canvas;canvas.setAttribute('role','img');canvas.setAttribute('aria-label','Your schedule photo');dialog.querySelector('#import-photo-preview').replaceChildren(canvas);dialog.querySelector('#import-photo-panel').hidden=false;dialog.querySelector('#photo-process').disabled=false;status('Photo ready. Rotate if needed, then tap Read schedule.');}
+ catch(error){if(draft&&token===photoSession)status(error.message||'Could not prepare the photo. Choose another image.',true);}
+}
+async function processPhoto(){
+ if(!draft||draft.reading||!photoCanvas)return;if(draft.rows.length&&!confirm('Replace this unsaved preview with classes detected in the photo?'))return;
+ stopCamera();const token=++generation,canvas=photoCanvas,progress=dialog.querySelector('#import-ocr-progress');ocrAbort=new AbortController();busy(true);progress.hidden=false;progress.value=0;status('Loading the photo reader… The first scan may take longer.');
+ const active=()=>!!draft&&token===generation;
+ try{const data=await StudentMatePhoto.recognize(canvas,{active,signal:ocrAbort.signal,register:worker=>{if(active())ocrWorker=worker;else worker?.terminate().catch(()=>{});},progress:message=>{if(!active())return;const reading=message.status==='recognizing text';progress.value=reading?Math.round((message.progress||0)*100):0;status(reading?`Reading photo text… ${progress.value}%`:'Preparing photo reader…');}});if(!active())return;
+  if(data.text.length>200000)throw Error('Too much text in the image. Use a photo of only the schedule.');
+  const layout=pdfTables(pdfLines(data.items,12)),result=P.parse(layout);const raw=data.text.trim();if(!result.rows.length&&raw)Object.assign(result,P.parse({lines:raw.split(/\n/)}));
+  result.warnings.unshift('Photo reading can miss or misread classes. Compare every title, weekday and time with the original image.');if(data.confidence<70)result.warnings.unshift('The image was difficult to read. Retake it in better light if the preview is incomplete.');if(!raw)result.warnings.unshift('No text was found. Use a sharper photo with the schedule filling the frame.');
+  loadParsed(result,raw);status(`${result.rows.length} entries detected from the photo. Review and edit before importing.`);
+ }catch(error){if(active()&&error.name!=='AbortError')status(error.message||'Could not read the photo. Reconnect, retake, or enter the classes manually.',true);}
+ finally{if(active()){ocrWorker=null;ocrAbort=null;progress.hidden=true;busy(false);}}
 }
 function commit(event){
  event.preventDefault();if(!draft||draft.reading)return;if(owner()!==draft.owner||state!==draft.state){status('Your workspace changed while this preview was open. Close it and import again in the current account.',true);return;}
@@ -100,5 +143,7 @@ function commit(event){
  const count=data.accepted.length,skipped=data.duplicates.size;close();go('schedule');toast(`${count} ${count===1?'class':'classes'} imported${skipped?' · '+skipped+' duplicates skipped':''}.`);
 }
 window.openScheduleImport=open;
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&dialog.open)stopCamera();});
+window.addEventListener('pagehide',()=>{if(dialog.open)close();else stopCamera();});
 dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
 })();
