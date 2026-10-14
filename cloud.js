@@ -5,7 +5,7 @@ const AUTH_KEY='studentmate.auth.v1';
 let account=null,revision=0,dirty=false,sending=false,syncTimer=null,syncMessage='This browser only',conflict=false,cloudReady=false,adminData=null,adminError='',adminLoading=false;
 const localSave=save,localRender=render;
 const copy=x=>JSON.parse(JSON.stringify(x));
-const blank=()=>({name:'Master',subjects:[],tasks:[],notes:[],schedule:[],sessions:0,focus:25,break:5});
+const blank=()=>({name:'Master',subjects:[],tasks:[],notes:[],answers:[],schedule:[],sessions:0,focus:25,break:5});
 function guestState(){try{const d=JSON.parse(localStorage.getItem(KEY));return validData(d)?d:blank()}catch{return blank()}}
 function draftKey(){return 'studentmate.draft.'+account.user.id}
 function keepDraft(){try{sessionStorage.setItem(draftKey(),JSON.stringify({data:state,revision,dirty}));return true}catch{toast('Could not keep a temporary copy. Export a backup.');return false}}
@@ -27,7 +27,7 @@ async function loadAdminDashboard(){if(!account||account.user.role!=='admin'||ad
 function status(message){syncMessage=message;$('cloud-status').textContent=account?message:'Sign in · Cloud save';if(accountActionBusy&&!['Saving to cloud…','Changes waiting to save','Saved to cloud','Already saved to cloud'].includes(message)&&$('account-action-error'))$('account-action-error').textContent=message;if(page==='settings')render()}
 save=function(){if(!account)return localSave();dirty=true;const kept=keepDraft();if(!conflict)status('Changes waiting to save');clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,700);return kept};
 async function syncNow(){if(!account||sending||conflict)return false;if(!cloudReady){await resumeAccount();return cloudReady}if(!dirty){status('Already saved to cloud');return true} sending=true;const snapshot=JSON.stringify(state);status('Saving to cloud…');let succeeded=false;try{const result=await request('/api/workspace','PUT',{data:JSON.parse(snapshot),revision});revision=result.revision;dirty=JSON.stringify(state)!==snapshot;keepDraft();status(dirty?'Changes waiting to save':'Saved to cloud');succeeded=true}catch(e){conflict=e.status===409;status(conflict?'Another device changed this workspace. Export your copy, then load the cloud copy.':e.status===401?'Session expired. Export unsaved work, then sign out and sign in.':e.message)}finally{sending=false;if(dirty&&!conflict&&syncMessage==='Changes waiting to save')syncTimer=setTimeout(syncNow,700)}return succeeded}
-function switchState(data){selectedTaskIds.clear();clearInterval(interval);interval=null;state=copy(data);seconds=state.focus*60;render()}
+function switchState(data){selectedTaskIds.clear();clearInterval(interval);interval=null;state={answers:[],...copy(data)};answerTaskFilter='';answerFilter='all';answerQuery='';stopFocusAlarm();seconds=state.focus*60;timerTotalSeconds=seconds;render()}
 async function loadCloud(){openAccountAction('load')}
 function importGuest(){openAccountAction('copy')}
 let pendingAccountAction='',accountActionBusy=false;
