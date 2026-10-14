@@ -1,0 +1,1 @@
+.api-startup-message{color:#47664f;background:#edf3ed;padding:12px 15px;border-radius:12px;font-size:14px;line-height:1.5;margin:12px 0}.api-startup-message[hidden]{display:none}.api-startup-message.is-floating{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 32px);width:max-content;z-index:1000;box-shadow:0 4px 20px #0001}
