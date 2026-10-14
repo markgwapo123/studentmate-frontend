@@ -35,7 +35,90 @@ const accountActionInfo={retry:{title:'Retry cloud save?',description:'Send your
 function openAccountAction(action){if(!account||sending||accountActionBusy)return;if(action==='copy'&&!cloudReady){toast('Wait until your cloud workspace finishes connecting.');return}pendingAccountAction=action;const info=accountActionInfo[action],dialog=$('account-action-confirm');dialog.innerHTML=`<section class="signout-panel" aria-labelledby="account-action-title" aria-describedby="account-action-description"><div class="signout-icon" aria-hidden="true">↻</div><div class="eyebrow">STUDENTMATE CLOUD</div><h2 id="account-action-title">${info.title}</h2><p id="account-action-description">${info.description}</p><p id="account-action-error" role="alert"></p><div class="signout-actions"><button class="secondary" id="account-action-cancel" type="button" onclick="closeAccountAction()">Cancel</button><button class="primary" id="account-action-submit" type="button" onclick="completeAccountAction()">${info.button}</button></div></section>`;if(!dialog.open)dialog.showModal()}
 function closeAccountAction(){if(accountActionBusy)return;const dialog=$('account-action-confirm');if(dialog.open)dialog.close();pendingAccountAction=''}
 async function completeAccountAction(){if(accountActionBusy||!pendingAccountAction||!account)return;const action=pendingAccountAction,info=accountActionInfo[action],button=$('account-action-submit'),cancel=$('account-action-cancel');accountActionBusy=true;button.disabled=true;cancel.disabled=true;button.innerHTML=`<span class="signout-spinner" aria-hidden="true"></span><span>${info.busy}</span>`;let ok=false;try{if(action==='retry'){if(!dirty){status('Already saved to cloud');ok=true}else ok=await syncNow()}else if(action==='load'){clearInterval(interval);interval=null;$('content').inert=true;try{const remote=await request('/api/workspace');if(!validData(remote.data))throw Error('Invalid cloud workspace.');revision=remote.revision;dirty=false;conflict=false;cloudReady=true;switchState(remote.data);keepDraft();status('Saved to cloud');ok=true}catch(e){status(e.message);$('account-action-error').textContent=e.message}finally{$('content').inert=false}}else if(action==='copy'){clearTimeout(syncTimer);switchState(guestState());save();ok=await syncNow();if(!ok)$('account-action-error').textContent=conflict?'Another device changed this workspace. Load the cloud copy or resolve the conflict first.':syncMessage}}catch(e){$('account-action-error').textContent=e.message||'Could not complete this action. Please try again.'}finally{accountActionBusy=false;if(ok){const dialog=$('account-action-confirm');if(dialog.open)dialog.close();pendingAccountAction=''}else{button.disabled=false;cancel.disabled=false;button.textContent=info.button}}}
-function openAuth(mode='login'){const gate=document.body.classList.contains('auth-required');if(account&&!gate){go('settings');return}if(!gate)$('auth').innerHTML='';const target=gate?$('auth-slot'):$('auth');target.innerHTML=`<form id="auth-form"><div class="modal-head"><h2>${mode==='register'?'Create your account':'Good to see you!'}</h2><button type="button" class="close" aria-label="Close" onclick="$('auth').close()">×</button></div><div class="auth-intro"><p class="subtitle">Your assignments, notes, and schedule, together across devices.</p><span class="auth-illustration" aria-hidden="true">${authIcon('graduation-cap')}</span></div>${mode==='register'?`<label for="auth-name">Your name</label><div class="auth-field"><span class="auth-field-icon">${authIcon('user')}</span><input id="auth-name" name="name" placeholder="Enter your name" autocomplete="name" required maxlength="40"></div>`:''}<label for="auth-email">Email</label><div class="auth-field"><span class="auth-field-icon">${authIcon('mail')}</span><input id="auth-email" name="email" type="email" placeholder="Enter your email address" autocomplete="username" required maxlength="254"></div><label for="auth-password">Password</label><input id="auth-password" name="password" placeholder="Enter your password" type="password" autocomplete="${mode==='register'?'new-password':'current-password'}" minlength="8" maxlength="128" required ${mode==='register'?'aria-describedby="register-password-rules"':''}><p class="meta" id="register-password-rules">${mode==='register'?'Use 8–128 characters with an uppercase letter (A–Z), a number (0–9), and a special character (e.g. ! @ #).':'Use at least 8 characters. Keep your password somewhere safe; password recovery is not available yet.'}</p><p id="auth-error" role="alert"></p><div class="modal-actions"><button class="secondary" type="button" onclick="openAuth('${mode==='register'?'login':'register'}')">${mode==='register'?'Sign in instead':'Create account'}</button><button class="primary" id="auth-submit">${mode==='register'?'Create account':'Sign in'} ${authIcon('arrow-right')}</button></div></form>`;$('auth-form').onsubmit=e=>authenticateUser(e,mode);if(mode==='register'){$('auth-password').addEventListener('input',checkRegistrationPassword);checkRegistrationPassword()}if(!gate&&!$('auth').open)$('auth').showModal()}
+
+function openAuth(mode = 'login') {
+  const gate = document.body.classList.contains('auth-required');
+
+  if (account && !gate) {
+    go('settings');
+    return;
+  }
+
+  if (!gate) $('auth').innerHTML = '';
+
+  const target = gate ? $('auth-slot') : $('auth');
+
+  target.innerHTML = `
+    <form id="auth-form">
+      ${mode === 'register' ? `
+        <div class="modal-head">
+          <h2>Create your account</h2>
+          <button type="button" class="close"
+            aria-label="Close"
+            onclick="$('auth').close()">×</button>
+        </div>
+      ` : ''}
+
+      ${mode === 'register' ? `
+        <label for="auth-name">Your name</label>
+        <div class="auth-field">
+          <span class="auth-field-icon">${authIcon('user')}</span>
+          <input id="auth-name" name="name"
+            placeholder="Enter your name"
+            autocomplete="name" required maxlength="40">
+        </div>
+      ` : ''}
+
+      <label for="auth-email">Email</label>
+      <div class="auth-field">
+        <span class="auth-field-icon">${authIcon('mail')}</span>
+        <input id="auth-email" name="email" type="email"
+          placeholder="Enter your email address"
+          autocomplete="username" required maxlength="254">
+      </div>
+
+      <label for="auth-password">Password</label>
+      <input id="auth-password" name="password"
+        placeholder="Enter your password"
+        type="password"
+        autocomplete="${mode === 'register' ? 'new-password' : 'current-password'}"
+        minlength="8" maxlength="128" required
+        ${mode === 'register' ? 'aria-describedby="register-password-rules"' : ''}>
+
+      <p class="meta" id="register-password-rules">
+        ${mode === 'register'
+          ? 'Use 8–128 characters with an uppercase letter (A–Z), a number (0–9), and a special character (e.g. ! @ #).'
+          : 'Use at least 8 characters. Keep your password somewhere safe; password recovery is not available yet.'}
+      </p>
+
+      <p id="auth-error" role="alert"></p>
+
+      <div class="modal-actions">
+        <button class="secondary" type="button"
+          onclick="openAuth('${mode === 'register' ? 'login' : 'register'}')">
+          ${mode === 'register' ? 'Sign in instead' : 'Create account'}
+        </button>
+
+        <button class="primary" id="auth-submit">
+          ${mode === 'register' ? 'Create account' : 'Sign in'}
+          ${authIcon('arrow-right')}
+        </button>
+      </div>
+    </form>
+  `;
+
+  $('auth-form').onsubmit = e => authenticateUser(e, mode);
+
+  if (mode === 'register') {
+    $('auth-password').addEventListener('input', checkRegistrationPassword);
+    checkRegistrationPassword();
+  }
+
+  if (!gate && !$('auth').open) {
+    $('auth').showModal();
+  }
+}
+
 function validRegistrationPassword(password){return typeof password==='string'&&password.length>=8&&password.length<=128&&/[A-Z]/.test(password)&&/[0-9]/.test(password)&&/[^\p{L}\p{N}\s]/u.test(password)}
 function checkRegistrationPassword(){const input=$('auth-password');input.setCustomValidity(input.value&&!validRegistrationPassword(input.value)?'Use at least 8 characters with an uppercase letter, a number and a special character.':'')}
 async function authenticateUser(e,mode){e.preventDefault();const form=e.target,button=$('auth-submit');button.disabled=true;$('auth-error').textContent='Connecting… This may take a moment.';try{const credentials=Object.fromEntries(new FormData(form));const result=await request('/api/auth/'+mode,'POST',credentials,null);if(result.user.role==='admin'){sessionStorage.setItem(AUTH_KEY,JSON.stringify(result));account=result;dirty=false;conflict=false;cloudReady=true;adminData=null;form.reset();$('auth').close();document.body.classList.remove('auth-required');document.body.classList.add('admin-mode');renderAdmin();toast('Admin signed in');return}const remote=await request('/api/workspace','GET',undefined,result.token);if(!validData(remote.data))throw Error('Invalid cloud workspace.');sessionStorage.setItem(AUTH_KEY,JSON.stringify(result));account=result;revision=remote.revision;dirty=false;conflict=false;cloudReady=true;switchState(remote.data);keepDraft();form.reset();$('auth').close();document.body.classList.remove('auth-required');status('Saved to cloud');go('home');if(!tutorialSeen())startTutorial();toast(mode==='register'?'Account created. Your cloud workspace is ready.':'Signed in successfully')}catch(err){$('auth-error').textContent=err.message}finally{button.disabled=false}}
