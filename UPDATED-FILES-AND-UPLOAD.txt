@@ -1,0 +1,44 @@
+STUDENTMATE APK UPDATER — UPDATED FOLDER
+====================================
+
+This ZIP contains the entire frontend repository source from your upload,
+with the APK updater added. Upload the contents of studentmate-frontend-main/
+to the root of the SAME GitHub repository (including hidden .github files).
+
+Read APK-UPDATER-SETUP.md BEFORE activating signed releases.
+
+MAIN NEW FILES:
+  APK-UPDATER-SETUP.md
+  UPDATED-FILES-AND-UPLOAD.txt
+  apk-updater.js
+  apk-updater.css
+  android-app/app/src/main/java/com/studentmate/app/ApkUpdater.java
+  android-app/app/src/main/res/xml/apk_provider_paths.xml
+  downloads/apk-release.json
+  scripts/publish-apk-release.py
+  test/test_apk_release.py
+
+MODIFIED FILES:
+  .github/workflows/build-apk.yml
+  README.md
+  android-app/app/build.gradle
+  android-app/app/src/main/AndroidManifest.xml
+  android-app/app/src/main/java/com/studentmate/app/MainActivity.java
+  app.html
+  index.html
+  prepare-pwa.mjs
+  pwa.js
+  sw.js (regenerated)
+  vercel.json
+
+EXISTING FUNCTIONS LEFT INTACT:
+  PDF/Word import, schedule parser, photo OCR, authentication,
+  assignments, notes, focus timer, and the main API/Cloud files.
+
+IMPORTANT:
+- A normal successful Debug build is NOT the same as a signed update.
+- Before publishing signed releases, create the four repository secrets
+  described in APK-UPDATER-SETUP.md. Never commit signing secrets.
+- Existing old debug-signed installs may NOT be updateable in place.
+  Confirm cloud sync/backups before any one-time migration.
+- Source only; requires GitHub Actions build and phone testing.

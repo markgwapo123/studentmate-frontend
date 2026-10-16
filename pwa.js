@@ -7,7 +7,7 @@
   const installed=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true||navigator.userAgent.includes('StudentMateAndroid/');
   const notice=document.createElement('section');
   notice.id='pwa-update';notice.hidden=true;notice.setAttribute('aria-live','polite');
-  notice.innerHTML='<div><strong>A new StudentMate update is ready</strong><p>Refresh to use the latest version.</p></div><button type="button" id="pwa-refresh">Update now</button><button type="button" id="pwa-dismiss" aria-label="Dismiss update notice">×</button>';
+  notice.innerHTML='<div><strong>A new StudentMate web update is ready</strong><p>Refresh to load the latest web features (separate from APK updates).</p></div><button type="button" id="pwa-refresh">Update now</button><button type="button" id="pwa-dismiss" aria-label="Dismiss update notice">×</button>';
   document.body.append(notice);
   const dialog=document.createElement('dialog');dialog.id='pwa-install-help';dialog.setAttribute('aria-label','Install StudentMate');
   dialog.innerHTML='<div class="pwa-install-mark" aria-hidden="true">✦</div><h2>Install StudentMate</h2><p id="pwa-install-message"></p><div class="pwa-install-actions"><button type="button" id="pwa-install-close">Not now</button><button type="button" id="pwa-install-confirm">Install StudentMate</button></div>';

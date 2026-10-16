@@ -2,7 +2,7 @@ import {createHash} from 'node:crypto';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const optional=['vendor/ocr/tesseract.min.js','vendor/ocr/worker.min.js','vendor/ocr/core/tesseract-core.wasm.js','vendor/ocr/core/tesseract-core-simd.wasm.js','vendor/ocr/core/tesseract-core-lstm.wasm.js','vendor/ocr/core/tesseract-core-simd-lstm.wasm.js','vendor/ocr/lang/eng.traineddata.gz'];
-const files=[...optional,'index.html','app.html','schedule-parser.js','schedule-photo.js','schedule-import.js','schedule-import.css','vendor/pdfjs/pdf.mjs','vendor/pdfjs/pdf.worker.mjs','vendor/mammoth/mammoth.browser.js','vendor/pdfjs/resources.json','download.css','style.css','app.js','cloud.js','api-client.js','api-client.css','pwa.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png'];
+const files=[...optional,'index.html','app.html','schedule-parser.js','schedule-photo.js','schedule-import.js','schedule-import.css','vendor/pdfjs/pdf.mjs','vendor/pdfjs/pdf.worker.mjs','vendor/mammoth/mammoth.browser.js','vendor/pdfjs/resources.json','download.css','style.css','app.js','cloud.js','api-client.js','api-client.css','pwa.js','apk-updater.js','apk-updater.css','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/apple-touch-icon.png'];
 const root=new URL('./',import.meta.url);
 const hash=createHash('sha256');hash.update('schedule-photo-import-v5');for(const file of files)hash.update(file).update(readFileSync(new URL(file,root)));
 const version=hash.digest('hex').slice(0,16);
